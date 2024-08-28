@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'dart:math';
 import '../widgets/category_button.dart';
 
 class MeetPage extends StatefulWidget {
@@ -71,6 +73,20 @@ class _MeetPageState extends State<MeetPage> {
     setState(() {
       selectedCategory = category;
     });
+  }
+
+  String formatTimestamp(String timestamp) {
+    DateTime postDate = DateTime.parse(timestamp);
+    DateTime now = DateTime.now();
+    Duration difference = now.difference(postDate);
+
+    if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}분 전';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}시간 전';
+    } else {
+      return '${difference.inDays}일 전';
+    }
   }
 
   @override
@@ -192,65 +208,70 @@ class _MeetPageState extends State<MeetPage> {
 
   Widget _buildPostItem(Map<String, dynamic> post) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: Card(
-        elevation: 2.0,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0), // 패딩 조정
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 카테고리 라벨
+          Row(
             children: [
-              // 카테고리 라벨
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.red), // 빨간 테두리로 표시
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  post["type"],
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 8),
+          // 제목
+          Text(
+            post["title"],
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 8),
+          // 설명
+          Text(
+            post["content"],
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+          SizedBox(height: 8),
+          // 인원, 시간, 조회수
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
               Row(
                 children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.red[100],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      post["type"],
-                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                    ),
+                  Image.asset(
+                    'assets/img/icon/joinuser.png',
+                    width: 16,
+                    height: 16,
+                  ),
+                  SizedBox(width: 4),
+                  Text(
+                    '${post["join_people"]}/${post["max_people"]}명과 함께',
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ],
               ),
-              SizedBox(height: 8),
-              // 제목
               Text(
-                post["title"],
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 8),
-              // 설명
-              Text(
-                post["content"],
-                style: TextStyle(color: Colors.grey[600]),
-              ),
-              SizedBox(height: 8),
-              // 인원, 시간, 조회수
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '인원: ${post["join_people"]}/${post["max_people"]} · ${post["gender"]}',
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                  Text(
-                    '${post["page_view"]} 조회수',
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                ],
-              ),
-              SizedBox(height: 8),
-              Text(
-                '작성일: ${post["created_at"]}',
+                '${post["page_view"]} 조회수',
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
             ],
           ),
-        ),
+          SizedBox(height: 8),
+          Text(
+            '작성일: ${formatTimestamp(post["created_at"])}',
+            style: TextStyle(color: Colors.grey, fontSize: 12),
+          ),
+          Divider(color: Colors.red, thickness: 1.0), // 게시글 분리선
+        ],
       ),
     );
   }
