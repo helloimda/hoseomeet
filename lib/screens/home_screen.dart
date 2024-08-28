@@ -3,6 +3,7 @@ import '../pages/home_page.dart';
 import '../pages/meet_page.dart';
 import '../pages/chat_page.dart';
 import '../pages/profile_page.dart';
+import '../widgets/custom_bottom_navigation_bar_item.dart'; // CustomBottomNavigationBarItem 가져오기
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -23,6 +24,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0, // AppBar의 기본 그림자 제거
+        scrolledUnderElevation: 0, // 스크롤 시에도 그림자가 생기지 않도록 설정
         automaticallyImplyLeading: false, // 뒤로가기 화살표 숨김
       ),
       body: _pages[_currentIndex],
@@ -39,37 +42,29 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: Color(0xFFE72410), // 활성화된 아이템의 라벨 색상 설정
         unselectedItemColor: Colors.grey, // 비활성화된 아이템의 라벨 색상 설정
         items: [
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              _currentIndex == 0 ? 'assets/img/icon/homered.png' : 'assets/img/icon/home.png',
-              width: 30,
-              height: 30,
-            ),
+          CustomBottomNavigationBarItem.build(
+            assetPath: 'assets/img/icon/home.png',
+            activeAssetPath: 'assets/img/icon/homered.png',
             label: 'HOME',
+            isActive: _currentIndex == 0,
           ),
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              _currentIndex == 1 ? 'assets/img/icon/meetred.png' : 'assets/img/icon/meet.png',
-              width: 30,
-              height: 30,
-            ),
+          CustomBottomNavigationBarItem.build(
+            assetPath: 'assets/img/icon/meet.png',
+            activeAssetPath: 'assets/img/icon/meetred.png',
             label: 'MEET',
+            isActive: _currentIndex == 1,
           ),
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              _currentIndex == 2 ? 'assets/img/icon/chatred.png' : 'assets/img/icon/chat.png',
-              width: 30,
-              height: 30,
-            ),
+          CustomBottomNavigationBarItem.build(
+            assetPath: 'assets/img/icon/chat.png',
+            activeAssetPath: 'assets/img/icon/chatred.png',
             label: 'CHAT',
+            isActive: _currentIndex == 2,
           ),
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              _currentIndex == 3 ? 'assets/img/icon/mered.png' : 'assets/img/icon/me.png',
-              width: 30,
-              height: 30,
-            ),
+          CustomBottomNavigationBarItem.build(
+            assetPath: 'assets/img/icon/me.png',
+            activeAssetPath: 'assets/img/icon/mered.png',
             label: 'ME',
+            isActive: _currentIndex == 3,
           ),
         ],
       ),

@@ -19,7 +19,7 @@ class CategoryButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6), // 세로 패딩을 줄여 버튼 크기를 줄임
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 6), // 세로 패딩을 줄여 버튼 크기를 줄임
           minimumSize: Size(60, 36), // 최소 크기를 설정하여 세로 크기를 줄임
           backgroundColor: isSelected ? Colors.red : Colors.white,
           foregroundColor: isSelected ? Colors.white : Colors.black,
