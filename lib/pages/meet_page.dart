@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'dart:math';
 import '../widgets/category_button.dart';
 
 class MeetPage extends StatefulWidget {
@@ -14,7 +12,7 @@ class _MeetPageState extends State<MeetPage> {
   final List<Map<String, dynamic>> posts = [
     {
       "id": 123,
-      "type": "모임",
+      "type": "배달",
       "title": "주말 모임",
       "content": "주말에 함께 모여 식사해요!",
       "join_people": 4,
@@ -36,7 +34,7 @@ class _MeetPageState extends State<MeetPage> {
     },
     {
       "id": 125,
-      "type": "모임",
+      "type": "배달",
       "title": "저녁 모임",
       "content": "저녁에 함께 영화 봐요!",
       "join_people": 4,
@@ -47,7 +45,7 @@ class _MeetPageState extends State<MeetPage> {
     },
     {
       "id": 126,
-      "type": "모임",
+      "type": "택시",
       "title": "저녁 모임",
       "content": "저녁에 함께 영화 봐요!",
       "join_people": 4,
@@ -208,7 +206,7 @@ class _MeetPageState extends State<MeetPage> {
 
   Widget _buildPostItem(Map<String, dynamic> post) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0), // 패딩 조정
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 27.0), // 패딩 조정
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -216,14 +214,14 @@ class _MeetPageState extends State<MeetPage> {
           Row(
             children: [
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.red), // 빨간 테두리로 표시
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   post["type"],
-                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -238,13 +236,17 @@ class _MeetPageState extends State<MeetPage> {
           // 설명
           Text(
             post["content"],
-            style: TextStyle(color: Colors.grey[600]),
+            style: TextStyle(fontSize: 12 ,color: Colors.grey[600],fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 8),
-          // 인원, 시간, 조회수
+          // 타임스탬프, 조회수, 참가자 수
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Text(
+                '${formatTimestamp(post["created_at"])} · 조회 ${post["page_view"]}',
+                style: TextStyle(color: Colors.grey, fontSize: 11,fontWeight: FontWeight.bold),
+              ),
               Row(
                 children: [
                   Image.asset(
@@ -254,21 +256,12 @@ class _MeetPageState extends State<MeetPage> {
                   ),
                   SizedBox(width: 4),
                   Text(
-                    '${post["join_people"]}/${post["max_people"]}명과 함께',
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                    '${post["join_people"]}/${post["max_people"]}',
+                    style: TextStyle(color: Colors.grey, fontSize: 11,fontWeight: FontWeight.bold,),
                   ),
                 ],
               ),
-              Text(
-                '${post["page_view"]} 조회수',
-                style: TextStyle(color: Colors.grey, fontSize: 12),
-              ),
             ],
-          ),
-          SizedBox(height: 8),
-          Text(
-            '작성일: ${formatTimestamp(post["created_at"])}',
-            style: TextStyle(color: Colors.grey, fontSize: 12),
           ),
           Divider(color: Colors.red, thickness: 1.0), // 게시글 분리선
         ],

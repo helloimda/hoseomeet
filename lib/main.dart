@@ -11,6 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
+        fontFamily: "Pretendard",
         primarySwatch: Colors.blue, // 기본 테마 색상을 파랑으로 설정
         scaffoldBackgroundColor: Colors.white, // 모든 Scaffold의 배경색을 흰색으로 설정
         splashFactory: NoSplash.splashFactory, // 물방울 효과 제거
@@ -23,3 +24,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
