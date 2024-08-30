@@ -194,12 +194,15 @@ class _MeetPageState extends State<MeetPage> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
+      floatingActionButton: GestureDetector(
+        onTap: () {
           // 플로팅 버튼 클릭 시 동작
         },
-        backgroundColor: Colors.red,
-        child: Icon(Icons.add),
+        child: Image.asset(
+          'assets/img/icon/meet-postadd.png',
+          width: 48,  // 이미지의 크기를 조정합니다.
+          height: 48, // 이미지의 크기를 조정합니다.
+        ),
       ),
     );
   }
