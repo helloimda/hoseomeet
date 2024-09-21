@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/category_button.dart';
+import 'create_post_page.dart';
 
 class MeetPage extends StatefulWidget {
   @override
@@ -336,8 +337,10 @@ class _MeetPageState extends State<MeetPage> {
       ),
       floatingActionButton: GestureDetector(
         onTap: () {
-          // 특정 post가 아닌, 기본적으로 첫 번째 post를 보여줌
-          _showPostDetail(posts[0]); // posts[0]을 전달하여 첫 번째 게시글을 모달로 보여줌
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CreatePostPage()), // 게시글 생성 페이지로 이동
+          );
         },
         child: Image.asset(
           'assets/img/icon/meet-postadd.png',
