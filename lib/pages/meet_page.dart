@@ -78,8 +78,10 @@ class _MeetPageState extends State<MeetPage> {
             borderRadius: BorderRadius.circular(20),
           ),
           child: GestureDetector(
+            // 모달 내부를 눌렀을 때 아무 동작도 하지 않도록 설정
+            behavior: HitTestBehavior.opaque, // 이벤트가 자식으로 전달되지 않도록 설정
             onTap: () {
-              Navigator.of(context).pop(); // 배경을 터치하면 닫히도록 설정
+              // 아무 동작도 하지 않음 (모달 창 내부 클릭 시 모달 닫히지 않음)
             },
             child: Container(
               padding: EdgeInsets.all(16.0),
@@ -188,16 +190,6 @@ class _MeetPageState extends State<MeetPage> {
       },
     );
   }
-
-
-
-
-
-
-
-
-
-
 
 
 
