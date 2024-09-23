@@ -57,12 +57,12 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea( // SafeArea를 추가해서 상태바 아래에서 바로 시작
-        top: false,  // 상단 여백 제거
+        top: false,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 20, bottom: 5.0), // 하단에 5의 패딩 추가
+              padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 20, bottom: 5.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -130,7 +130,7 @@ class _ChatPageState extends State<ChatPage> {
                         ),
                       );
                     },
-                    child: _buildChatRoomItem(chatRoom),
+                    child: _buildChatRoomItem(chatRoom),  // _buildChatRoomItem 메서드 사용
                   );
                 },
               ),
@@ -141,10 +141,10 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  // 채팅방 항목 빌더
+  // 채팅방 항목 빌더 메서드 추가
   Widget _buildChatRoomItem(Map<String, dynamic> chatRoom) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0), // 세로 간격을 줄임
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -159,7 +159,10 @@ class _ChatPageState extends State<ChatPage> {
                 ),
                 child: Text(
                   chatRoom['type'],
-                  style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold),
                 ),
               ),
               Spacer(),
@@ -177,7 +180,8 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                 ),
               SizedBox(width: 8),
-              Text(chatRoom['time'], style: TextStyle(color: Colors.grey, fontSize: 12)),
+              Text(chatRoom['time'],
+                  style: TextStyle(color: Colors.grey, fontSize: 12)),
             ],
           ),
           SizedBox(height: 4), // 제목과 설명 사이의 간격을 줄임
