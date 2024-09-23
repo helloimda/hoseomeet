@@ -1,3 +1,4 @@
+//meet_page에서 게시글 생성시 출력페이지
 import 'package:flutter/material.dart';
 
 class CreatePostPage extends StatefulWidget {

@@ -23,11 +23,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 0, // AppBar의 기본 그림자 제거
-        scrolledUnderElevation: 0, // 스크롤 시에도 그림자가 생기지 않도록 설정
-        automaticallyImplyLeading: false, // 뒤로가기 화살표 숨김
+      appBar: PreferredSize( //appbar 삭제
+        child: AppBar(),
+        preferredSize: Size.fromHeight(0),
+
       ),
+      // appBar: AppBar(
+      //   elevation: 0, // AppBar의 기본 그림자 제거
+      //   scrolledUnderElevation: 0, // 스크롤 시에도 그림자가 생기지 않도록 설정
+      //   automaticallyImplyLeading: false, // 뒤로가기 화살표 숨김
+      // ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed, // 아이콘 확대 효과 제거
