@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import '../widgets/post_item.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -10,6 +11,64 @@ class _HomePageState extends State<HomePage> {
   final List<String> _selectOptions = ['전체', '모임', '배달', '택시', '카풀'];
   String _selectedOption = '전체';
   bool _isDropdownOpened = false; // 드롭다운이 열렸는지 여부를 추적
+
+  final List<Map<String, dynamic>> posts = [
+    {
+      "id": 123,
+      "type": "배달",
+      "title": "주말 모임",
+      "content": "주말에 함께 모여 식사해요!",
+      "join_people": 4,
+      "max_people": 10,
+      "gender": "무관",
+      "page_view": 3,
+      "created_at": "2024-08-12T10:00:00Z"
+    },
+    {
+      "id": 124,
+      "type": "모임",
+      "title": "주중 모임",
+      "content": "주중에 함께 산책해요!",
+      "join_people": 4,
+      "max_people": 8,
+      "gender": "무관",
+      "page_view": 23,
+      "created_at": "2024-08-13T12:00:00Z"
+    },
+    {
+      "id": 125,
+      "type": "배달",
+      "title": "저녁 모임",
+      "content": "저녁에 함께 영화 봐요!",
+      "join_people": 4,
+      "max_people": 12,
+      "gender": "무관",
+      "page_view": 13,
+      "created_at": "2024-08-14T18:00:00Z"
+    },
+    {
+      "id": 126,
+      "type": "택시",
+      "title": "저녁 모임",
+      "content": "저녁에 함께 영화 봐요!",
+      "join_people": 4,
+      "max_people": 12,
+      "gender": "무관",
+      "page_view": 13,
+      "created_at": "2024-08-14T18:00:00Z"
+    },
+    {
+      "id": 127,
+      "type": "모임",
+      "title": "저녁 모임",
+      "content": "저녁에 함께 영화 봐요!",
+      "join_people": 4,
+      "max_people": 12,
+      "gender": "무관",
+      "page_view": 13,
+      "created_at": "2024-08-14T18:00:00Z"
+    },
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -213,7 +272,7 @@ class _HomePageState extends State<HomePage> {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Container(
-                          width: 70,  // 드롭다운의 아이템 너비 조정
+                          width: 70, // 드롭다운의 아이템 너비 조정
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -247,7 +306,7 @@ class _HomePageState extends State<HomePage> {
                       }).toList();
                     },
                   ),
-                )
+                ),
               ),
             ],
           ),
@@ -255,14 +314,9 @@ class _HomePageState extends State<HomePage> {
         SizedBox(height: 8),
         Expanded(
           child: ListView.builder(
-            itemCount: 10,
+            itemCount: posts.length,
             itemBuilder: (context, index) {
-              return ListTile(
-                leading: Icon(Icons.location_on),
-                title: Text('배달로 때문에 같이 주문 하실 분 구해요'),
-                subtitle: Text('호서대 근처 음식점'),
-                trailing: Text('1시간 전'),
-              );
+              return buildPostItem(posts[index]); // 여기서 buildPostItem 함수를 사용해 게시글 출력
             },
           ),
         ),
