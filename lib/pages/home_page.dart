@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final List<String> _selectOptions = ['전체', '모임', '배달', '택시', '카풀'];
+  String _selectedOption = '전체';
+  bool _isDropdownOpened = false; // 드롭다운이 열렸는지 여부를 추적
+
   @override
   Widget build(BuildContext context) {
     final double panelHeightOpen = MediaQuery.of(context).size.height * 0.73; // 슬라이드 패널이 완전히 열렸을 때 높이
@@ -12,7 +21,7 @@ class HomePage extends StatelessWidget {
         children: [
           // 지도 또는 백그라운드
           Center(
-            child: Text('지도 API 백그라운드'),  // 여기에는 지도 API 연동 코드가 들어가야 합니다.
+            child: Text('지도 API 백그라운드'), // 여기에는 지도 API 연동 코드가 들어가야 합니다.
           ),
 
           // 검색바
@@ -71,7 +80,7 @@ class HomePage extends StatelessWidget {
           // 슬라이드 패널
           SlidingUpPanel(
             minHeight: panelHeightClosed, // 패널이 닫혔을 때 높이
-            maxHeight: panelHeightOpen,  // 패널이 열렸을 때 높이
+            maxHeight: panelHeightOpen, // 패널이 열렸을 때 높이
             borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
             panel: _buildPanelContent(), // 패널 내부의 내용
             body: Stack(
@@ -86,10 +95,12 @@ class HomePage extends StatelessWidget {
                         onPressed: () {},
                         backgroundColor: Colors.white,
                         shape: CircleBorder(),
-                        child: Image.asset(
-                          'assets/img/icon/mainpage/heart.png',
-                          width: 30, // 이미지 크기 조정
-                          height: 30,
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/img/icon/mainpage/heart.png',
+                            width: 30, // 이미지 크기 조정
+                            height: 30,
+                          ),
                         ),
                       ),
                       SizedBox(height: 10),
@@ -97,18 +108,21 @@ class HomePage extends StatelessWidget {
                         onPressed: () {},
                         backgroundColor: Colors.white,
                         shape: CircleBorder(),
-                        child: Image.asset(
-                          'assets/img/icon/mainpage/gps.png',
-                          width: 30, // 이미지 크기 조정
-                          height: 30,
+                        child: ClipOval(
+                          child: Image.asset(
+                            'assets/img/icon/mainpage/gps.png',
+                            width: 30, // 이미지 크기 조정
+                            height: 30,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
               ],
-            ),  // 패널 뒤에 있는 지도나 다른 내용
+            ), // 패널 뒤에 있는 지도나 다른 내용
           ),
+
         ],
       ),
     );
@@ -167,9 +181,75 @@ class HomePage extends StatelessWidget {
         SizedBox(height: 16),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            '지금 소소님을 기다리고 있어요!',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '지금 소소님을 기다리고 있어요!',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              // Select 탭을 Title 우측에 배치
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white, // 흰색 배경 설정
+                  boxShadow: _isDropdownOpened
+                      ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      spreadRadius: 1,
+                      blurRadius: 5,
+                      offset: Offset(0, 3), // 그림자 위치 조정
+                    ),
+                  ]
+                      : [], // 클릭 전에는 그림자 없음
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    dropdownColor: Colors.white, // 드롭다운 배경을 흰색으로 설정
+                    value: _selectedOption,
+                    icon: SizedBox.shrink(), // 기본 화살표 숨김
+                    items: _selectOptions.map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Container(
+                          width: 70,  // 드롭다운의 아이템 너비 조정
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(value),
+                              Divider(color: Colors.grey), // 경계선 추가
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedOption = newValue!;
+                        _isDropdownOpened = false; // 드롭다운이 닫히면 그림자 제거
+                      });
+                    },
+                    onTap: () {
+                      setState(() {
+                        _isDropdownOpened = true; // 드롭다운이 열리면 그림자 추가
+                      });
+                    },
+                    // 텍스트와 아이콘을 평행하게 배치
+                    selectedItemBuilder: (BuildContext context) {
+                      return _selectOptions.map((String value) {
+                        return Row(
+                          children: [
+                            Text(value),
+                            Icon(Icons.keyboard_arrow_down, color: Colors.black),
+                          ],
+                        );
+                      }).toList();
+                    },
+                  ),
+                )
+              ),
+            ],
           ),
         ),
         SizedBox(height: 8),
