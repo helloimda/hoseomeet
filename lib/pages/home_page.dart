@@ -4,168 +4,153 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final double panelHeightOpen = MediaQuery.of(context).size.height * 0.73; // 슬라이드 패널이 완전히 열렸을 때 높이
+    final double panelHeightClosed = 150.0; // 슬라이드 패널이 닫혔을 때 높이 (카테고리 탭 바로 아래까지)
+
     return Scaffold(
       body: Stack(
         children: [
-          // TODO: 여기에 지도 API 출력 예정 (예시로 빈 배경을 둠)
-          Container(
-            color: Colors.grey.shade300,
+          // 지도 또는 백그라운드
+          Center(
+            child: Text('지도 API 백그라운드'),  // 여기에는 지도 API 연동 코드가 들어가야 합니다.
           ),
 
-          // 상단 검색바와 카테고리 탭
+          // 검색바
           Positioned(
-            top: 50,
-            left: 20,
-            right: 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 검색 바
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 4.0,
-                        offset: Offset(0, 2),
+            top: 15,
+            left: 16,
+            right: 16,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.0),
+              height: 40.0,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20.0),
+                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 6)],
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.search, color: Colors.grey),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: "장소, 음식점, 카페 검색",
+                        border: InputBorder.none,
                       ),
-                    ],
-                  ),
-                  child: TextField(
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.search, color: Colors.grey),
-                      hintText: '장소를 검색하세요',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(vertical: 15.0),
                     ),
                   ),
-                ),
-                SizedBox(height: 15),
+                ],
+              ),
+            ),
+          ),
 
-                // 카테고리 탭
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildCategoryButton('자취방'),
-                      _buildCategoryButton('음식점'),
-                      _buildCategoryButton('카페'),
-                      _buildCategoryButton('술집'),
-                      _buildCategoryButton('편의점'),
-                      _buildCategoryButton('놀거리'),
-                    ],
-                  ),
-                ),
-              ],
+          // 카테고리 탭
+          Positioned(
+            top: 70,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 50,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                physics: BouncingScrollPhysics(), // 좌우 슬라이드 가능하게 설정
+                padding: EdgeInsets.symmetric(horizontal: 12.0),
+                children: [
+                  _buildCategoryButton('자취방', 'assets/img/icon/mainpage/roomtype.png'),
+                  _buildCategoryButton('음식점', 'assets/img/icon/mainpage/foodtype.png'),
+                  _buildCategoryButton('카페', 'assets/img/icon/mainpage/cafetype.png'),
+                  _buildCategoryButton('술집', 'assets/img/icon/mainpage/bartype.png'),
+                  _buildCategoryButton('편의점', 'assets/img/icon/mainpage/shoptype.png'),
+                  _buildCategoryButton('놀거리', 'assets/img/icon/mainpage/playtype.png'),
+                ],
+              ),
             ),
           ),
 
           // 슬라이드 패널
           SlidingUpPanel(
-            minHeight: 150, // 최소 높이
-            maxHeight: MediaQuery.of(context).size.height * 0.6, // 최대 높이
-            panel: _buildSlidingPanel(), // 슬라이드 패널의 내용
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(20.0),
-              topRight: Radius.circular(20.0),
-            ),
+            minHeight: panelHeightClosed, // 패널이 닫혔을 때 높이
+            maxHeight: panelHeightOpen,  // 패널이 열렸을 때 높이
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+            panel: _buildPanelContent(), // 패널 내부의 내용
+            body: Container(),  // 패널 뒤에 있는 지도나 다른 내용
           ),
         ],
       ),
     );
   }
 
-  // 카테고리 버튼 빌더
-  Widget _buildCategoryButton(String label) {
+  // 카테고리 버튼 빌드 함수
+  Widget _buildCategoryButton(String text, String iconPath) {
     return Padding(
-      padding: const EdgeInsets.only(right: 8.0),
+      padding: EdgeInsets.symmetric(horizontal: 5.0,vertical: 6), // 버튼 간격을 약간 넓게 유지
       child: ElevatedButton(
         onPressed: () {},
         style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.red, backgroundColor: Colors.white,
-          side: BorderSide(color: Colors.red),
+          foregroundColor: Colors.black,
+          backgroundColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8), // 부드러운 패딩 값
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
+          elevation: 2,
+          side: BorderSide(color: Colors.grey),
         ),
-        child: Text(
-          label,
-          style: TextStyle(color: Colors.red),
+        child: Row(
+          children: [
+            Image.asset(
+              iconPath,
+              width: 20, // 아이콘 크기 유지
+              height: 20,
+            ),
+            SizedBox(width: 6), // 아이콘과 텍스트 간격을 적절히 유지
+            Text(
+              text,
+              style: TextStyle(fontSize: 14), // 텍스트 크기를 줄여서 정돈된 느낌 제공
+            ),
+          ],
         ),
       ),
     );
   }
 
-  // 슬라이드 패널의 내용 빌드
-  Widget _buildSlidingPanel() {
+  // 패널 내부 내용 빌드 함수
+  Widget _buildPanelContent() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 12.0),
-        Container(
-          width: 30,
-          height: 5,
-          decoration: BoxDecoration(
-            color: Colors.grey[300],
-            borderRadius: BorderRadius.circular(12.0),
+        SizedBox(height: 16),
+        Center(
+          child: Container(
+            height: 5,
+            width: 50,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         ),
-        SizedBox(height: 18.0),
+        SizedBox(height: 16),
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "지금 소소님을 기다리고 있어요!",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.shade300,
-                      blurRadius: 5,
-                      spreadRadius: 1,
-                    )
-                  ],
-                ),
-                padding: EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.restaurant, color: Colors.red),
-                        SizedBox(width: 10),
-                        Text(
-                          '배달로 때문에 같이 주문 하실 분 구해요',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      '저는 정문 쪽에 거주하고 있습니다.',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                    ),
-                    SizedBox(height: 5),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('호서대 · 1시간 전 · 조회 14'),
-                        Text('1/3', style: TextStyle(color: Colors.grey[600])),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            '지금 소소님을 기다리고 있어요!',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+        SizedBox(height: 8),
+        Expanded(
+          child: ListView.builder(
+            itemCount: 10,
+            itemBuilder: (context, index) {
+              return ListTile(
+                leading: Icon(Icons.location_on),
+                title: Text('배달로 때문에 같이 주문 하실 분 구해요'),
+                subtitle: Text('호서대 근처 음식점'),
+                trailing: Text('1시간 전'),
+              );
+            },
           ),
         ),
       ],
