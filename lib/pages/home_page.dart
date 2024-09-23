@@ -5,7 +5,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final double panelHeightOpen = MediaQuery.of(context).size.height * 0.73; // 슬라이드 패널이 완전히 열렸을 때 높이
-    final double panelHeightClosed = 150.0; // 슬라이드 패널이 닫혔을 때 높이 (카테고리 탭 바로 아래까지)
+    final double panelHeightClosed = MediaQuery.of(context).size.height * 0.15; // 슬라이드 패널이 닫혔을 때 높이 (카테고리 탭 바로 아래까지)
 
     return Scaffold(
       body: Stack(
@@ -74,7 +74,40 @@ class HomePage extends StatelessWidget {
             maxHeight: panelHeightOpen,  // 패널이 열렸을 때 높이
             borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
             panel: _buildPanelContent(), // 패널 내부의 내용
-            body: Container(),  // 패널 뒤에 있는 지도나 다른 내용
+            body: Stack(
+              children: [
+                // 패널 뒤에 있는 내용: 지도와 버튼
+                Positioned(
+                  bottom: MediaQuery.of(context).size.height * 0.28,
+                  left: 16,
+                  child: Column(
+                    children: [
+                      FloatingActionButton(
+                        onPressed: () {},
+                        backgroundColor: Colors.white,
+                        shape: CircleBorder(),
+                        child: Image.asset(
+                          'assets/img/icon/mainpage/heart.png',
+                          width: 30, // 이미지 크기 조정
+                          height: 30,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      FloatingActionButton(
+                        onPressed: () {},
+                        backgroundColor: Colors.white,
+                        shape: CircleBorder(),
+                        child: Image.asset(
+                          'assets/img/icon/mainpage/gps.png',
+                          width: 30, // 이미지 크기 조정
+                          height: 30,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),  // 패널 뒤에 있는 지도나 다른 내용
           ),
         ],
       ),
@@ -84,7 +117,7 @@ class HomePage extends StatelessWidget {
   // 카테고리 버튼 빌드 함수
   Widget _buildCategoryButton(String text, String iconPath) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 5.0,vertical: 6), // 버튼 간격을 약간 넓게 유지
+      padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 6), // 버튼 간격을 약간 넓게 유지
       child: ElevatedButton(
         onPressed: () {},
         style: ElevatedButton.styleFrom(
