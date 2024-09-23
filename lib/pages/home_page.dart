@@ -140,7 +140,7 @@ class _HomePageState extends State<HomePage> {
           SlidingUpPanel(
             minHeight: panelHeightClosed, // 패널이 닫혔을 때 높이
             maxHeight: panelHeightOpen, // 패널이 열렸을 때 높이
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24.0)),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(50)),
             panel: _buildPanelContent(), // 패널 내부의 내용
             body: Stack(
               children: [
