@@ -12,6 +12,12 @@ class _HomePageState extends State<HomePage> {
   String _selectedOption = '전체';
   bool _isDropdownOpened = false; // 드롭다운이 열렸는지 여부를 추적
 
+  bool _isSubCategoryVisible = false; // 자취방을 눌렀을 때 하위 카테고리 표시
+  String _selectedSubCategory = ''; // 선택된 하위 카테고리 저장
+
+  // 하위 카테고리 리스트
+  final List<String> subCategories = ['정문', '중문', '후문', '기숙사'];
+
   final List<Map<String, dynamic>> posts = [
     {
       "id": 123,
@@ -118,21 +124,46 @@ class _HomePageState extends State<HomePage> {
             top: 70,
             left: 0,
             right: 0,
-            child: Container(
-              height: 50,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                physics: BouncingScrollPhysics(), // 좌우 슬라이드 가능하게 설정
-                padding: EdgeInsets.symmetric(horizontal: 12.0),
-                children: [
-                  _buildCategoryButton('자취방', 'assets/img/icon/mainpage/roomtype.png'),
-                  _buildCategoryButton('음식점', 'assets/img/icon/mainpage/foodtype.png'),
-                  _buildCategoryButton('카페', 'assets/img/icon/mainpage/cafetype.png'),
-                  _buildCategoryButton('술집', 'assets/img/icon/mainpage/bartype.png'),
-                  _buildCategoryButton('편의점', 'assets/img/icon/mainpage/shoptype.png'),
-                  _buildCategoryButton('놀거리', 'assets/img/icon/mainpage/playtype.png'),
-                ],
-              ),
+            child: Column(
+              children: [
+                Container(
+                  height: 50,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    physics: BouncingScrollPhysics(), // 좌우 슬라이드 가능하게 설정
+                    padding: EdgeInsets.symmetric(horizontal: 12.0),
+                    children: [
+                      _buildCategoryButton('자취방', 'assets/img/icon/mainpage/roomtype.png', _toggleSubCategory),
+                      _buildCategoryButton('음식점', 'assets/img/icon/mainpage/foodtype.png'),
+                      _buildCategoryButton('카페', 'assets/img/icon/mainpage/cafetype.png'),
+                      _buildCategoryButton('술집', 'assets/img/icon/mainpage/bartype.png'),
+                      _buildCategoryButton('편의점', 'assets/img/icon/mainpage/shoptype.png'),
+                      _buildCategoryButton('놀거리', 'assets/img/icon/mainpage/playtype.png'),
+                    ],
+                  ),
+                ),
+
+                // 자취방 선택 시 하위 카테고리 표시
+                if (_isSubCategoryVisible)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Wrap(
+                      spacing: 8.0,
+                      children: subCategories.map((category) {
+                        return ChoiceChip(
+                          label: Text(category),
+                          selected: _selectedSubCategory == category,
+                          selectedColor: Colors.red,
+                          onSelected: (bool selected) {
+                            setState(() {
+                              _selectedSubCategory = selected ? category : '';
+                            });
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+              ],
             ),
           ),
 
@@ -181,18 +212,17 @@ class _HomePageState extends State<HomePage> {
               ],
             ), // 패널 뒤에 있는 지도나 다른 내용
           ),
-
         ],
       ),
     );
   }
 
   // 카테고리 버튼 빌드 함수
-  Widget _buildCategoryButton(String text, String iconPath) {
+  Widget _buildCategoryButton(String text, String iconPath, [VoidCallback? onPressed]) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 6), // 버튼 간격을 약간 넓게 유지
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: onPressed ?? () {}, // 자취방의 경우 하위 카테고리를 열기 위해 onPressed 전달
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.black,
           backgroundColor: Colors.white,
@@ -219,6 +249,13 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  // 하위 카테고리 토글 함수
+  void _toggleSubCategory() {
+    setState(() {
+      _isSubCategoryVisible = !_isSubCategoryVisible;
+    });
   }
 
   // 패널 내부 내용 빌드 함수
