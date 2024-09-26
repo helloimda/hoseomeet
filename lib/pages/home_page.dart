@@ -285,10 +285,10 @@ class _HomePageState extends State<HomePage> {
         SizedBox(height: 16),
         Center(
           child: Container(
-            height: 5,
-            width: 50,
+            height: 3,
+            width: 150,
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: Colors.red[300],
               borderRadius: BorderRadius.circular(12),
             ),
           ),
