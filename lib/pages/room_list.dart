@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class RoomList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // 자취방 리스트 데이터
     final List<Map<String, dynamic>> rooms = [
       {
         "name": "퍼스트빌",
@@ -52,54 +51,68 @@ class RoomList extends StatelessWidget {
                 ),
               ],
             ),
-            child: Row(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 방 이미지
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: Image.asset(
-                    room['image'],
-                    width: 100,
-                    height: 100,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                SizedBox(width: 10),
-                // 방 정보
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        room['name'],
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                Row(
+                  children: [
+                    // 방 이미지
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.asset(
+                        room['image'],
+                        width: 100,
+                        height: 100,
+                        fit: BoxFit.cover,
                       ),
-                      SizedBox(height: 5),
-                      Row(
+                    ),
+                    SizedBox(width: 10),
+                    // 방 정보
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(Icons.star, color: Colors.red, size: 20),
-                          SizedBox(width: 5),
-                          Text(room['rating'].toString()),
-                          SizedBox(width: 10),
-                          Text(room['distance']),
-                          SizedBox(width: 10),
-                          Text('리뷰 ${room['reviews']}'),
+                          Text(
+                            room['name'],
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 5),
+                          Row(
+                            children: [
+                              Icon(Icons.star, color: Colors.red, size: 18),
+                              SizedBox(width: 5),
+                              Text(
+                                room['rating'].toString(),
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                room['distance'],
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                '리뷰 ${room['reviews']}',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
-                      SizedBox(height: 10),
-                      Text(
-                        room['description'],
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
+                    ),
+                    // 좋아요 버튼
+                    Icon(Icons.favorite_border, color: Colors.red),
+                  ],
                 ),
-                // 좋아요 버튼
-                Icon(Icons.favorite_border, color: Colors.red),
+                SizedBox(height: 10),
+                // 설명 텍스트
+                Text(
+                  room['description'],
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
               ],
             ),
           ),
