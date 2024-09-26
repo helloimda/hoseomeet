@@ -13,10 +13,13 @@ class _HomePageState extends State<HomePage> {
   bool _isDropdownOpened = false; // 드롭다운이 열렸는지 여부를 추적
 
   bool _isSubCategoryVisible = false; // 자취방을 눌렀을 때 하위 카테고리 표시
-  String _selectedSubCategory = ''; // 선택된 하위 카테고리 저장
+  String _selectedSubCategory = '전체'; // 기본값으로 '전체' 카테고리 선택
 
-  // 하위 카테고리 리스트
-  final List<String> subCategories = ['정문', '중문', '후문', '기숙사'];
+  // 메인 카테고리 활성화를 위한 변수 (디폴트 선택 없음)
+  String _selectedMainCategory = '';
+
+  // 하위 카테고리 리스트 (첫번째 인덱스에 '전체' 추가)
+  final List<String> subCategories = ['전체', '정문', '중문', '후문', '기숙사'];
 
   final List<Map<String, dynamic>> posts = [
     {
@@ -133,12 +136,12 @@ class _HomePageState extends State<HomePage> {
                     physics: BouncingScrollPhysics(), // 좌우 슬라이드 가능하게 설정
                     padding: EdgeInsets.symmetric(horizontal: 12.0),
                     children: [
-                      _buildCategoryButton('자취방', 'assets/img/icon/mainpage/roomtype.png', _toggleSubCategory),
-                      _buildCategoryButton('음식점', 'assets/img/icon/mainpage/foodtype.png'),
-                      _buildCategoryButton('카페', 'assets/img/icon/mainpage/cafetype.png'),
-                      _buildCategoryButton('술집', 'assets/img/icon/mainpage/bartype.png'),
-                      _buildCategoryButton('편의점', 'assets/img/icon/mainpage/shoptype.png'),
-                      _buildCategoryButton('놀거리', 'assets/img/icon/mainpage/playtype.png'),
+                      _buildCategoryButton('자취방', _selectedMainCategory == '자취방' ? 'assets/img/icon/mainpage/roomtypered.png' : 'assets/img/icon/mainpage/roomtype.png', _toggleSubCategory, _selectedMainCategory == '자취방'),
+                      _buildCategoryButton('음식점', _selectedMainCategory == '음식점' ? 'assets/img/icon/mainpage/foodtypered.png' : 'assets/img/icon/mainpage/foodtype.png', () => _selectMainCategory('음식점'), _selectedMainCategory == '음식점'),
+                      _buildCategoryButton('카페', _selectedMainCategory == '카페' ? 'assets/img/icon/mainpage/cafetypered.png' : 'assets/img/icon/mainpage/cafetype.png', () => _selectMainCategory('카페'), _selectedMainCategory == '카페'),
+                      _buildCategoryButton('술집', _selectedMainCategory == '술집' ? 'assets/img/icon/mainpage/bartypered.png' : 'assets/img/icon/mainpage/bartype.png', () => _selectMainCategory('술집'), _selectedMainCategory == '술집'),
+                      _buildCategoryButton('편의점', _selectedMainCategory == '편의점' ? 'assets/img/icon/mainpage/shoptypered.png' : 'assets/img/icon/mainpage/shoptype.png', () => _selectMainCategory('편의점'), _selectedMainCategory == '편의점'),
+                      _buildCategoryButton('놀거리', _selectedMainCategory == '놀거리' ? 'assets/img/icon/mainpage/playtypered.png' : 'assets/img/icon/mainpage/playtype.png', () => _selectMainCategory('놀거리'), _selectedMainCategory == '놀거리'),
                     ],
                   ),
                 ),
@@ -256,10 +259,19 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  // 메인 카테고리 선택 함수
+  void _selectMainCategory(String category) {
+    setState(() {
+      _selectedMainCategory = category;
+      _isSubCategoryVisible = false; // 자취방 외 다른 메인 카테고리 선택 시 서브카테고리 비활성화
+    });
+  }
+
   // 하위 카테고리 토글 함수
   void _toggleSubCategory() {
     setState(() {
       _isSubCategoryVisible = !_isSubCategoryVisible;
+      _selectedMainCategory = '자취방'; // 자취방을 다시 선택하면 메인 카테고리 활성화
     });
   }
 
