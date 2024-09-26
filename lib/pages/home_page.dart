@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'room_list.dart'; // 자취방 리스트를 불러오기 위한 import
 import '../widgets/post_item.dart';
 
 class HomePage extends StatefulWidget {
@@ -172,7 +173,8 @@ class _HomePageState extends State<HomePage> {
             minHeight: panelHeightClosed, // 패널이 닫혔을 때 높이
             maxHeight: panelHeightOpen, // 패널이 열렸을 때 높이
             borderRadius: BorderRadius.vertical(top: Radius.circular(50)),
-            panel: _buildPanelContent(), // 패널 내부의 내용
+            // 패널 내부의 내용을 조건에 따라 자취방 리스트와 기존 패널로 구분
+            panel: _selectedMainCategory == '자취방' ? RoomList() : _buildPanelContent(),
             body: Stack(
               children: [
                 // 패널 뒤에 있는 내용: 지도와 버튼
@@ -275,7 +277,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  // 패널 내부 내용 빌드 함수
+  // 기존 패널 내용
   Widget _buildPanelContent() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,7 +372,7 @@ class _HomePageState extends State<HomePage> {
           child: ListView.builder(
             itemCount: posts.length,
             itemBuilder: (context, index) {
-              return buildPostItem(posts[index]); // 여기서 buildPostItem 함수를 사용해 게시글 출력
+              return buildPostItem(posts[index]); // 기존 게시물 출력
             },
           ),
         ),
