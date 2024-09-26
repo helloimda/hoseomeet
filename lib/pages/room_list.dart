@@ -6,7 +6,7 @@ class RoomList extends StatelessWidget {
     final List<Map<String, dynamic>> rooms = [
       {
         "name": "퍼스트빌",
-        "distance": "152m",
+        "distance": "150m",
         "reviews": 37,
         "image": "assets/img/info/room1.png",
         "description": "신선한 재료로 만든 건강한 맛, 최고의 맛집!",
@@ -22,7 +22,7 @@ class RoomList extends StatelessWidget {
       },
       {
         "name": "솔원룸",
-        "distance": "152m",
+        "distance": "151m",
         "reviews": 37,
         "image": "assets/img/info/room3.png",
         "description": "신선한 재료로 만든 건강한 맛, 최고의 맛집!",
@@ -31,7 +31,19 @@ class RoomList extends StatelessWidget {
     ];
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(height: 16),
+        Center(
+          child: Container(
+            height: 3,
+            width: 150,
+            decoration: BoxDecoration(
+              color: Colors.red[300],
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
         // 상단 텍스트
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
@@ -45,32 +57,36 @@ class RoomList extends StatelessWidget {
                       text: '지금 ',
                       style: TextStyle(
                         fontSize: 20,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700, // Pretendard Bold
                         color: Colors.black,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     TextSpan(
                       text: '소소',
                       style: TextStyle(
                         fontSize: 20,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700, // Pretendard Bold
                         color: Colors.red,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     TextSpan(
                       text: '님 주위에 있는 ',
                       style: TextStyle(
                         fontSize: 20,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700, // Pretendard Bold
                         color: Colors.black,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     TextSpan(
                       text: '자취방',
                       style: TextStyle(
                         fontSize: 20,
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w700, // Pretendard Bold
                         color: Colors.red,
-                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
@@ -84,7 +100,13 @@ class RoomList extends StatelessWidget {
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value),
+                    child: Text(
+                      value,
+                      style: TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w400, // Regular weight
+                      ),
+                    ),
                   );
                 }).toList(),
                 onChanged: (String? newValue) {
@@ -143,7 +165,8 @@ class RoomList extends StatelessWidget {
                                   room['name'],
                                   style: TextStyle(
                                     fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Pretendard',
+                                    fontWeight: FontWeight.w700, // Bold
                                   ),
                                 ),
                                 SizedBox(height: 5),
@@ -153,17 +176,29 @@ class RoomList extends StatelessWidget {
                                     SizedBox(width: 5),
                                     Text(
                                       room['rating'].toString(),
-                                      style: TextStyle(fontSize: 14),
+                                      style: TextStyle(
+                                        fontFamily: 'Pretendard',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400, // Regular
+                                      ),
                                     ),
                                     SizedBox(width: 10),
                                     Text(
                                       room['distance'],
-                                      style: TextStyle(fontSize: 14),
+                                      style: TextStyle(
+                                        fontFamily: 'Pretendard',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400, // Regular
+                                      ),
                                     ),
                                     SizedBox(width: 10),
                                     Text(
                                       '리뷰 ${room['reviews']}',
-                                      style: TextStyle(fontSize: 14),
+                                      style: TextStyle(
+                                        fontFamily: 'Pretendard',
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400, // Regular
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -178,7 +213,11 @@ class RoomList extends StatelessWidget {
                       // 설명 텍스트
                       Text(
                         room['description'],
-                        style: TextStyle(color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontFamily: 'Pretendard',
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
                       ),
                     ],
                   ),
