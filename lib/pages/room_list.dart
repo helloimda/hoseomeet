@@ -58,7 +58,7 @@ class RoomList extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700, // Pretendard Bold
+                        fontWeight: FontWeight.w700, // Pretendard Black
                         color: Colors.black,
                       ),
                     ),
@@ -67,7 +67,7 @@ class RoomList extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700, // Pretendard Bold
+                        fontWeight: FontWeight.w700, // Pretendard Black
                         color: Colors.red,
                       ),
                     ),
@@ -76,7 +76,7 @@ class RoomList extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700, // Pretendard Bold
+                        fontWeight: FontWeight.w700, // Pretendard Black
                         color: Colors.black,
                       ),
                     ),
@@ -85,7 +85,7 @@ class RoomList extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700, // Pretendard Bold
+                        fontWeight: FontWeight.w700, // Pretendard Black
                         color: Colors.red,
                       ),
                     ),
@@ -166,23 +166,25 @@ class RoomList extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w700, // Bold
+                                    fontWeight: FontWeight.w700, // Black
                                   ),
+                                ),
+                                SizedBox(height: 5),
+                                // 별점 출력 부분 (5개의 별로 고정)
+                                Row(
+                                  children: List.generate(5, (starIndex) {
+                                    return Icon(
+                                      Icons.star,
+                                      color: (room['rating'] >= starIndex + 1)
+                                          ? Colors.red
+                                          : Colors.grey, // rating에 따라 별 색깔 설정
+                                      size: 18,
+                                    );
+                                  }),
                                 ),
                                 SizedBox(height: 5),
                                 Row(
                                   children: [
-                                    Icon(Icons.star, color: Colors.red, size: 18),
-                                    SizedBox(width: 5),
-                                    Text(
-                                      room['rating'].toString(),
-                                      style: TextStyle(
-                                        fontFamily: 'Pretendard',
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400, // Regular
-                                      ),
-                                    ),
-                                    SizedBox(width: 10),
                                     Text(
                                       room['distance'],
                                       style: TextStyle(
@@ -210,8 +212,9 @@ class RoomList extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 10),
-                      // 설명 텍스트를 보라색 배경으로 출력
+                      // 설명 텍스트
                       Container(
+                        width: double.infinity,
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           color: Colors.purple[50], // 보라색 배경
@@ -221,9 +224,11 @@ class RoomList extends StatelessWidget {
                           room['description'],
                           style: TextStyle(
                             fontFamily: 'Pretendard',
-                            fontSize: 14,
-                            color: Colors.grey[600],
+                            fontSize: 11, // 폰트 크기 10으로 조정
+                            fontWeight: FontWeight.w400, // Regular
+                            color: Colors.grey[800],
                           ),
+                          textAlign: TextAlign.center, // 텍스트 센터 정렬
                         ),
                       ),
                     ],
