@@ -210,13 +210,20 @@ class RoomList extends StatelessWidget {
                         ],
                       ),
                       SizedBox(height: 10),
-                      // 설명 텍스트
-                      Text(
-                        room['description'],
-                        style: TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontSize: 14,
-                          color: Colors.grey[600],
+                      // 설명 텍스트를 보라색 배경으로 출력
+                      Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.purple[50], // 보라색 배경
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          room['description'],
+                          style: TextStyle(
+                            fontFamily: 'Pretendard',
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
                         ),
                       ),
                     ],
