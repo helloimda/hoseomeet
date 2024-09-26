@@ -145,20 +145,17 @@ class _HomePageState extends State<HomePage> {
 
                 // 자취방 선택 시 하위 카테고리 표시
                 if (_isSubCategoryVisible)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: Wrap(
-                      spacing: 8.0,
-                      children: subCategories.map((category) {
-                        return ChoiceChip(
-                          label: Text(category),
-                          selected: _selectedSubCategory == category,
-                          selectedColor: Colors.red,
-                          onSelected: (bool selected) {
-                            setState(() {
-                              _selectedSubCategory = selected ? category : '';
-                            });
-                          },
+                  Container(
+                    height: 50,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      padding: EdgeInsets.symmetric(horizontal: 12.0),
+                      children: subCategories.map<Widget>((category) {
+                        return _buildCategoryButton(
+                          category,
+                          '', // 하위 카테고리는 아이콘이 없으므로 빈 문자열 전달
+                              () => _selectSubCategory(category), // 하위 카테고리 선택 시 호출
+                          _selectedSubCategory == category, // 선택된 하위 카테고리 강조
                         );
                       }).toList(),
                     ),
@@ -218,14 +215,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   // 카테고리 버튼 빌드 함수
-  Widget _buildCategoryButton(String text, String iconPath, [VoidCallback? onPressed]) {
+  Widget _buildCategoryButton(String text, String iconPath, [VoidCallback? onPressed, bool isSelected = false]) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 6), // 버튼 간격을 약간 넓게 유지
       child: ElevatedButton(
-        onPressed: onPressed ?? () {}, // 자취방의 경우 하위 카테고리를 열기 위해 onPressed 전달
+        onPressed: onPressed ?? () {},
         style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.black,
-          backgroundColor: Colors.white,
+          foregroundColor: isSelected ? Colors.white : Colors.black,
+          backgroundColor: isSelected ? Colors.red : Colors.white,
           padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8), // 부드러운 패딩 값
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -235,12 +232,13 @@ class _HomePageState extends State<HomePage> {
         ),
         child: Row(
           children: [
-            Image.asset(
-              iconPath,
-              width: 20, // 아이콘 크기 유지
-              height: 20,
-            ),
-            SizedBox(width: 6), // 아이콘과 텍스트 간격을 적절히 유지
+            if (iconPath.isNotEmpty) // 아이콘이 있을 때만 출력
+              Image.asset(
+                iconPath,
+                width: 20, // 아이콘 크기 유지
+                height: 20,
+              ),
+            if (iconPath.isNotEmpty) SizedBox(width: 6), // 아이콘과 텍스트 간격을 적절히 유지
             Text(
               text,
               style: TextStyle(fontSize: 14), // 텍스트 크기를 줄여서 정돈된 느낌 제공
@@ -249,6 +247,13 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  // 하위 카테고리 선택 함수
+  void _selectSubCategory(String category) {
+    setState(() {
+      _selectedSubCategory = category;
+    });
   }
 
   // 하위 카테고리 토글 함수
