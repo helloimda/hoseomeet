@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../api/login/auth_service.dart';
 
 class SignUpDetailsPage extends StatefulWidget {
   @override
@@ -10,6 +11,7 @@ class _SignUpDetailsPageState extends State<SignUpDetailsPage> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   String? _gender; // 성별 저장
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +71,7 @@ class _SignUpDetailsPageState extends State<SignUpDetailsPage> {
                   _gender = newValue;
                 });
               },
-              items: <String>['남성', '여성', '비공개']
+              items: <String>['남성', '여성', '기타']
                   .map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
@@ -79,8 +81,36 @@ class _SignUpDetailsPageState extends State<SignUpDetailsPage> {
             ),
             SizedBox(height: 32),
             ElevatedButton(
-              onPressed: () {
-                // 가입하기 버튼 클릭 시 처리 로직
+              onPressed: () async {
+                if (_emailController.text.isNotEmpty &&
+                    _passwordController.text.isNotEmpty &&
+                    _nameController.text.isNotEmpty &&
+                    _gender != null) {
+                  // 회원가입 요청
+                  final response = await _authService.registerUser(
+                    email: _emailController.text,
+                    password: _passwordController.text,
+                    name: _nameController.text,
+                    gender: _gender!,
+                  );
+
+                  // 응답 코드가 201일 때 성공으로 처리
+                  if (response.statusCode == 201) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('회원가입 성공!')),
+                    );
+                    // 성공 시 초기 화면으로 돌아가기
+                    Navigator.popUntil(context, (route) => route.isFirst);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('회원가입 실패: ${response.body}')),
+                    );
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('모든 필드를 입력해주세요.')),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
