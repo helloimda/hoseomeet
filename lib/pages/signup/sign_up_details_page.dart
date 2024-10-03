@@ -69,7 +69,7 @@ class _SignUpDetailsPageState extends State<SignUpDetailsPage> {
                   _gender = newValue;
                 });
               },
-              items: <String>['남성', '여성', '기타']
+              items: <String>['남성', '여성', '비공개']
                   .map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,

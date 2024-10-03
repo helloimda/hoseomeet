@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'sign_up_details_page.dart'; // SignUpDetailsPage import
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -79,7 +80,11 @@ class _SignUpPageState extends State<SignUpPage> {
             ElevatedButton(
               onPressed: _termsOfService && _privacyPolicy && _communityRules
                   ? () {
-                // 회원가입 처리 로직
+                // 휴대폰 인증 시 다음 페이지로 이동
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SignUpDetailsPage()),
+                );
               }
                   : null,
               style: ElevatedButton.styleFrom(
