@@ -1,6 +1,49 @@
 import 'package:flutter/material.dart';
 
-class RoomList extends StatelessWidget {
+class RoomList extends StatefulWidget {
+  @override
+  _RoomListState createState() => _RoomListState();
+}
+
+class _RoomListState extends State<RoomList> {
+  final List<String> _selectOptions = ['거리순', '별점순', '리뷰순'];
+  String _selectedOption = '거리순';
+  bool _isDropdownOpened = false;
+
+  void _showCustomDropdown(BuildContext context) async {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay = Overlay.of(context)!.context.findRenderObject() as RenderBox;
+
+    // 드롭다운의 위치를 오른쪽에 맞추기 위한 RelativeRect 설정
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(Offset(button.size.width, 0), ancestor: overlay), // 버튼의 오른쪽 상단을 기준으로
+        button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    String? selected = await showMenu<String>(
+      context: context,
+      position: position,
+      items: _selectOptions.map((String value) {
+        return PopupMenuItem<String>(
+          value: value,
+          child: Container(
+            width: button.size.width * 0.5, // 팝업의 너비를 현재 버튼 크기의 50%로 설정
+            child: Text(value),
+          ),
+        );
+      }).toList(),
+    );
+
+    if (selected != null) {
+      setState(() {
+        _selectedOption = selected;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> rooms = [
@@ -44,7 +87,7 @@ class RoomList extends StatelessWidget {
             ),
           ),
         ),
-        // 상단 텍스트
+        // 상단 텍스트 및 드롭다운 버튼
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
           child: Row(
@@ -58,7 +101,7 @@ class RoomList extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700, // Pretendard Black
+                        fontWeight: FontWeight.w700,
                         color: Colors.black,
                       ),
                     ),
@@ -67,7 +110,7 @@ class RoomList extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700, // Pretendard Black
+                        fontWeight: FontWeight.w700,
                         color: Colors.red,
                       ),
                     ),
@@ -76,7 +119,7 @@ class RoomList extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700, // Pretendard Black
+                        fontWeight: FontWeight.w700,
                         color: Colors.black,
                       ),
                     ),
@@ -85,38 +128,32 @@ class RoomList extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 20,
                         fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w700, // Pretendard Black
+                        fontWeight: FontWeight.w700,
                         color: Colors.red,
                       ),
                     ),
                   ],
                 ),
               ),
-              // 정렬 옵션 버튼
-              DropdownButton<String>(
-                value: '거리순',
-                icon: Icon(Icons.keyboard_arrow_down),
-                items: ['거리순', '별점순', '리뷰순']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(
-                      value,
+              // 커스텀 드롭다운 버튼
+              GestureDetector(
+                onTap: () => _showCustomDropdown(context),
+                child: Row(
+                  children: [
+                    Text(
+                      _selectedOption,
                       style: TextStyle(
                         fontFamily: 'Pretendard',
-                        fontWeight: FontWeight.w400, // Regular weight
+                        fontWeight: FontWeight.w400,
                       ),
                     ),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  // 정렬 방식 변경 처리 (구현 필요)
-                },
+                    Icon(Icons.keyboard_arrow_down, color: Colors.black),
+                  ],
+                ),
               ),
             ],
           ),
         ),
-
         // 자취방 리스트
         Expanded(
           child: ListView.builder(
@@ -125,7 +162,8 @@ class RoomList extends StatelessWidget {
               final room = rooms[index];
 
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+                padding: const EdgeInsets.symmetric(
+                    vertical: 10.0, horizontal: 16.0),
                 child: Container(
                   padding: EdgeInsets.all(10),
                   decoration: BoxDecoration(
@@ -136,7 +174,7 @@ class RoomList extends StatelessWidget {
                         color: Colors.grey.withOpacity(0.5),
                         spreadRadius: 2,
                         blurRadius: 7,
-                        offset: Offset(0, 3), // 그림자 위치
+                        offset: Offset(0, 3),
                       ),
                     ],
                   ),
@@ -166,18 +204,18 @@ class RoomList extends StatelessWidget {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w700, // Black
+                                    fontWeight: FontWeight.w900,
                                   ),
                                 ),
                                 SizedBox(height: 5),
-                                // 별점 출력 부분 (5개의 별로 고정)
+                                // 별점 출력 부분
                                 Row(
                                   children: List.generate(5, (starIndex) {
                                     return Icon(
                                       Icons.star,
                                       color: (room['rating'] >= starIndex + 1)
                                           ? Colors.red
-                                          : Colors.grey, // rating에 따라 별 색깔 설정
+                                          : Colors.grey,
                                       size: 18,
                                     );
                                   }),
@@ -190,7 +228,7 @@ class RoomList extends StatelessWidget {
                                       style: TextStyle(
                                         fontFamily: 'Pretendard',
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w400, // Regular
+                                        fontWeight: FontWeight.w400,
                                       ),
                                     ),
                                     SizedBox(width: 10),
@@ -199,7 +237,7 @@ class RoomList extends StatelessWidget {
                                       style: TextStyle(
                                         fontFamily: 'Pretendard',
                                         fontSize: 14,
-                                        fontWeight: FontWeight.w400, // Regular
+                                        fontWeight: FontWeight.w400,
                                       ),
                                     ),
                                   ],
@@ -217,18 +255,18 @@ class RoomList extends StatelessWidget {
                         width: double.infinity,
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.purple[50], // 보라색 배경
+                          color: Colors.purple[50],
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
                           room['description'],
                           style: TextStyle(
                             fontFamily: 'Pretendard',
-                            fontSize: 11, // 폰트 크기 10으로 조정
-                            fontWeight: FontWeight.w400, // Regular
+                            fontSize: 10,
+                            fontWeight: FontWeight.w400,
                             color: Colors.grey[800],
                           ),
-                          textAlign: TextAlign.center, // 텍스트 센터 정렬
+                          textAlign: TextAlign.center,
                         ),
                       ),
                     ],
