@@ -1,7 +1,7 @@
 // lib/pages/chat_page.dart
 
 import 'package:flutter/material.dart';
-import '../widgets/category_button.dart';
+import '../../widgets/category_button.dart';
 import 'chat_detail_page.dart';  // ChatDetailPage 파일을 가져옴
 
 class ChatPage extends StatefulWidget {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart'; // home_screen.dart 파일을 import
+import '../pages/signup/sign_up_page.dart'; // 회원가입 페이지 import
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -69,7 +70,11 @@ class LoginScreen extends StatelessWidget {
                 width: buttonWidth,
                 child: ElevatedButton(
                   onPressed: () {
-                    // 회원가입 버튼 클릭 시 수행할 작업
+                    // 회원가입 페이지로 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SignUpPage()),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
