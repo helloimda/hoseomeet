@@ -2,12 +2,18 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../config.dart'; // config 파일 import
+
 class AuthService with WidgetsBindingObserver {
   String? _accessToken;
+  final String loginEndpoint = '${AppConfig.baseUrl}/auth/jwt/login?lifetime_seconds=3600';  // loginEndpoint 추가
 
-  final String loginEndpoint = '${AppConfig.baseUrl}/auth/jwt/login?lifetime_seconds=3600';
+  static final AuthService _instance = AuthService._internal();  // 싱글톤 인스턴스
 
-  AuthService() {
+  factory AuthService() {
+    return _instance;
+  }
+
+  AuthService._internal() {
     // 앱 라이프사이클을 감시하는 옵저버 추가
     WidgetsBinding.instance.addObserver(this);
   }
@@ -38,7 +44,7 @@ class AuthService with WidgetsBindingObserver {
 
     // POST 요청을 보냅니다.
     final response = await http.post(
-      Uri.parse(loginEndpoint),
+      Uri.parse(loginEndpoint),  // loginEndpoint 사용
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
@@ -48,7 +54,7 @@ class AuthService with WidgetsBindingObserver {
     // 성공 시 토큰 저장
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
-      _accessToken = responseBody['access_token'];
+      _accessToken = responseBody['access_token'];  // 토큰 저장
     }
 
     return response;
