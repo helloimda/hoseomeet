@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // DateFormat 사용을 위한 패키지
 import '../../api/chat/load_message_service.dart'; // LoadMessageService import
 import '../../api/login/login_service.dart'; // AuthService import
+import '../../api/login/authme_service.dart'; // AuthMeService import
 
 class ChatDetailPage extends StatefulWidget {
   final Map<String, dynamic> chatRoom;
@@ -15,6 +16,7 @@ class ChatDetailPage extends StatefulWidget {
 class _ChatDetailPageState extends State<ChatDetailPage> {
   late Future<List<dynamic>> _messagesFuture;
   late final LoadMessageService loadMessageService;
+  int? _userId; // 현재 사용자의 ID를 저장할 변수
 
   @override
   void initState() {
@@ -22,8 +24,19 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     final authService = AuthService(); // AuthService 인스턴스 생성
     loadMessageService = LoadMessageService(authService); // AuthService 전달
 
+    // AuthMeService를 사용해 로그인된 사용자 ID를 가져옴
+    _fetchUserId();
+
     // stream_id를 인자로 전달하여 메시지 불러오기
     _messagesFuture = loadMessageService.loadMessages(widget.chatRoom['stream_id']);
+  }
+
+  Future<void> _fetchUserId() async {
+    final authMeService = AuthMeService(AuthService().accessToken!);
+    await authMeService.fetchAndStoreUserId(); // ID 가져오기
+    setState(() {
+      _userId = authMeService.userId; // 가져온 ID를 설정
+    });
   }
 
   String _formatTime(String timestamp) {
@@ -67,7 +80,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     itemCount: messages.length,
                     itemBuilder: (context, index) {
                       final message = messages[index];
-                      bool isMe = message['sender_id'] == 1; // 현재 사용자 ID와 비교 (1은 예시)
+                      bool isMe = message['sender_id'] == _userId; // 현재 사용자 ID와 비교
 
                       return Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
