@@ -9,7 +9,7 @@ class ChatDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(chatRoom['title']),
+        title: Text(chatRoom['title'] ?? 'No Title'), // null일 경우 기본값 제공
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,

@@ -23,7 +23,7 @@ class CreateRoomService {
     // 요청 헤더 설정 (Bearer 토큰 추가)
     final headers = {
       'accept': 'application/json',
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json; charset=UTF-8', // UTF-8 인코딩 추가
       'Authorization': 'Bearer $token', // Bearer 토큰 추가
     };
 
@@ -37,7 +37,7 @@ class CreateRoomService {
     final response = await http.post(
       Uri.parse(createRoomEndpoint),
       headers: headers,
-      body: body,
+      body: body, // UTF-8로 인코딩된 바디 전송
     );
 
     return response;
