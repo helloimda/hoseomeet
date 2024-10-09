@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../config.dart'; // config 파일 import
+import 'authme_service.dart'; // AuthMeService import
 
 class AuthService with WidgetsBindingObserver {
   String? _accessToken;
@@ -51,10 +52,14 @@ class AuthService with WidgetsBindingObserver {
       body: requestData,
     );
 
-    // 성공 시 토큰 저장
+    // 성공 시 토큰 저장 후 authme_service 호출
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
       _accessToken = responseBody['access_token'];  // 토큰 저장
+
+      // AuthMeService를 통해 유저 정보 가져오기
+      final authMeService = AuthMeService(_accessToken!); // 토큰 전달
+      await authMeService.fetchAndStoreUserId();  // 유저 ID 저장
     }
 
     return response;
