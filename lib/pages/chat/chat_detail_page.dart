@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // DateFormat 사용을 위한 패키지
 import '../../api/chat/load_message_service.dart'; // LoadMessageService import
+import '../../api/chat/send_message_service.dart'; // SendMessageService import
 import '../../api/login/login_service.dart'; // AuthService import
 import '../../api/login/authme_service.dart'; // AuthMeService import
 
@@ -16,6 +17,8 @@ class ChatDetailPage extends StatefulWidget {
 class _ChatDetailPageState extends State<ChatDetailPage> {
   late Future<List<dynamic>> _messagesFuture;
   late final LoadMessageService loadMessageService;
+  late final SendMessageService sendMessageService;
+  final TextEditingController _messageController = TextEditingController(); // 메시지 입력 필드 컨트롤러
   int? _userId; // 현재 사용자의 ID를 저장할 변수
 
   @override
@@ -23,6 +26,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     super.initState();
     final authService = AuthService(); // AuthService 인스턴스 생성
     loadMessageService = LoadMessageService(authService); // AuthService 전달
+    sendMessageService = SendMessageService(authService); // SendMessageService 인스턴스
 
     // AuthMeService를 사용해 로그인된 사용자 ID를 가져옴
     _fetchUserId();
@@ -47,6 +51,37 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     String formattedTime = DateFormat('a h:mm', 'ko_KR').format(dateTime);
 
     return formattedTime;
+  }
+
+  Future<void> _sendMessage() async {
+    String messageContent = _messageController.text.trim();
+    if (messageContent.isNotEmpty && _userId != null) {
+      try {
+        // SendMessageService를 사용하여 메시지 전송
+        await sendMessageService.sendMessage(
+          streamId: widget.chatRoom['stream_id'], // streamId를 전달
+          messageContent: messageContent,
+        );
+        _messageController.clear(); // 메시지 전송 후 입력 필드 초기화
+
+        // 새 메시지를 전송 후 목록 새로고침
+        _loadMessages();
+      } catch (error) {
+        print('메시지 전송 실패: $error');
+      }
+    }
+  }
+
+  void _loadMessages() {
+    setState(() {
+      _messagesFuture = loadMessageService.loadMessages(widget.chatRoom['stream_id']);
+    });
+  }
+
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -136,12 +171,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Row(
               children: [
-                IconButton(
-                  icon: Icon(Icons.more_horiz, color: Colors.grey),
-                  onPressed: () {},
-                ),
                 Expanded(
                   child: TextField(
+                    controller: _messageController,
                     decoration: InputDecoration(
                       hintText: '메시지를 입력하세요...',
                       border: OutlineInputBorder(
@@ -157,7 +189,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 ),
                 IconButton(
                   icon: Icon(Icons.send, color: Colors.red),
-                  onPressed: () {},
+                  onPressed: _sendMessage, // 메시지 전송 함수 호출
                 ),
               ],
             ),
