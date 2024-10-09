@@ -131,64 +131,73 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  // 채팅방 항목 빌더 메서드
   Widget _buildChatRoomItem(Map<String, dynamic> chatRoom) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              // 카테고리 라벨
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.red),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  chatRoom['type'] ?? 'Unknown', // null일 경우 기본값 제공
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.red,
-                      fontWeight: FontWeight.bold),
-                ),
-              ),
-              Spacer(),
-              // 안 읽은 메시지 개수
-              if ((chatRoom['unread_message_count'] ?? 0) > 0)
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatDetailPage(chatRoom: chatRoom),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
                 Container(
-                  padding: EdgeInsets.all(6),
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.red),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    '${chatRoom['unread_message_count'] ?? 0}', // null일 경우 기본값 제공
-                    style: TextStyle(color: Colors.white, fontSize: 12),
+                    chatRoom['type'] ?? 'Unknown',
+                    style: TextStyle(fontSize: 12, color: Colors.red, fontWeight: FontWeight.bold),
                   ),
                 ),
-              SizedBox(width: 8),
-              Text(chatRoom['date_sent'] ?? 'Unknown', // null일 경우 기본값 제공
-                  style: TextStyle(color: Colors.grey, fontSize: 12)),
-            ],
-          ),
-          SizedBox(height: 4), // 제목과 설명 사이의 간격을 줄임
-          Text(
-            chatRoom['name'] ?? 'No Title', // null일 경우 기본값 제공
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
-          SizedBox(height: 2), // 제목과 내용 간의 간격을 줄임
-          Text(
-            chatRoom['last_message'] ?? 'No messages', // null일 경우 기본값 제공
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-          Divider(color: Colors.red, thickness: 1.0),
-        ],
+                Spacer(),
+                if ((chatRoom['unread_message_count'] ?? 0) > 0)
+                  Container(
+                    padding: EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(
+                      '${chatRoom['unread_message_count'] ?? 0}',
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ),
+                SizedBox(width: 8),
+                Text(
+                  chatRoom['date_sent'] ?? 'Unknown',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                ),
+              ],
+            ),
+            SizedBox(height: 4),
+            Text(
+              chatRoom['name'] ?? 'No Title',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            SizedBox(height: 2),
+            Text(
+              chatRoom['last_message'] ?? 'No messages',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            Divider(color: Colors.red, thickness: 1.0),
+          ],
+        ),
       ),
     );
   }
+
+
+
 
 
   // 카테고리에 따라 채팅방 필터링
