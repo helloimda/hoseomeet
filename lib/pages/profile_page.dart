@@ -14,7 +14,10 @@ class _ProfilePageState extends State<ProfilePage> {
   late final CreateRoomService createRoomService;
   late final JoinRoomService joinRoomService; // JoinRoomService 추가
   late final LoadRoomListService loadRoomListService; // LoadRoomListService 추가
-  final TextEditingController _roomIdController = TextEditingController(); // 텍스트박스 컨트롤러 추가
+
+  final TextEditingController _roomNameController = TextEditingController(); // 방 이름 입력용
+  final TextEditingController _roomTypeController = TextEditingController(); // 방 타입 입력용
+  final TextEditingController _roomIdController = TextEditingController(); // Room ID 입력용
 
   @override
   void initState() {
@@ -26,7 +29,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   void dispose() {
-    _roomIdController.dispose(); // 텍스트박스 컨트롤러 해제
+    _roomNameController.dispose(); // 컨트롤러 해제
+    _roomTypeController.dispose(); // 컨트롤러 해제
+    _roomIdController.dispose(); // 컨트롤러 해제
     super.dispose();
   }
 
@@ -38,30 +43,38 @@ class _ProfilePageState extends State<ProfilePage> {
         children: [
           Text('Profile Page'),
 
-          ElevatedButton(
-            onPressed: () {
-              // 현재 저장된 토큰을 출력
-              final token = authService.accessToken;
-              if (token != null) {
-                print('현재 토큰: $token');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('현재 토큰: $token')),
-                );
-              } else {
-                print('저장된 토큰이 없습니다.');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('저장된 토큰이 없습니다.')),
-                );
-              }
-            },
-            child: Text('Button 1 - 토큰 출력'),
+          // Room Name 입력 텍스트박스
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _roomNameController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Room Name 입력',
+              ),
+            ),
+          ),
+
+          // Room Type 입력 텍스트박스
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _roomTypeController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Room Type 입력',
+              ),
+            ),
           ),
 
           ElevatedButton(
             onPressed: () async {
               try {
-                // CreateRoomService 테스트 (roomName: 'TestRoom')
-                final response = await createRoomService.createRoom(roomName: 'TestRoom');
+                // CreateRoomService 테스트 (roomName과 roomType을 사용)
+                final response = await createRoomService.createRoom(
+                  roomName: _roomNameController.text,
+                  roomType: _roomTypeController.text,
+                );
                 if (response.statusCode == 200) {
                   print('채팅방 생성 성공: ${response.body}');
                   ScaffoldMessenger.of(context).showSnackBar(

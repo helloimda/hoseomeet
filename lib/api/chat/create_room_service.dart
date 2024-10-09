@@ -11,6 +11,7 @@ class CreateRoomService {
 
   Future<http.Response> createRoom({
     required String roomName,
+    required String roomType, // 타입 추가
   }) async {
     // 저장된 토큰을 가져옵니다.
     String? token = _authService.accessToken;
@@ -26,9 +27,10 @@ class CreateRoomService {
       'Authorization': 'Bearer $token', // Bearer 토큰 추가
     };
 
-    // 요청 바디 설정
+    // 요청 바디 설정 (roomName과 roomType을 포함)
     final body = jsonEncode({
       'name': roomName,
+      'type': roomType, // 타입 추가
     });
 
     // POST 요청 보내기 (헤더와 바디 포함)
@@ -41,19 +43,3 @@ class CreateRoomService {
     return response;
   }
 }
-
-// 사용 예시
-// AuthService authService = AuthService();
-// CreateRoomService createRoomService = CreateRoomService(authService);
-
-// void onCreateButtonPressed() {
-//   createRoomService.createRoom(roomName: _titleController.text).then((response) {
-//     if (response.statusCode == 200) {
-//       print('채팅방 생성 성공: ${response.body}');
-//     } else {
-//       print('채팅방 생성 실패: ${response.statusCode} - ${response.body}');
-//     }
-//   }).catchError((error) {
-//     print('오류 발생: $error');
-//   });
-// }
