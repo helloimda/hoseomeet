@@ -173,8 +173,9 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ),
                 SizedBox(width: 8),
+                // 마지막 메시지의 date_sent 필드를 올바르게 출력
                 Text(
-                  chatRoom['date_sent'] ?? 'Unknown',
+                  chatRoom['last_message'] is Map ? (chatRoom['last_message']['date_sent'] ?? 'Unknown') : 'Unknown',
                   style: TextStyle(color: Colors.grey, fontSize: 12),
                 ),
               ],
@@ -185,8 +186,9 @@ class _ChatPageState extends State<ChatPage> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             SizedBox(height: 2),
+            // 마지막 메시지의 content 필드를 올바르게 출력
             Text(
-              chatRoom['last_message'] ?? 'No messages',
+              chatRoom['last_message'] is Map ? (chatRoom['last_message']['content'] ?? 'No messages') : 'No messages',
               style: TextStyle(color: Colors.grey[600]),
             ),
             Divider(color: Colors.red, thickness: 1.0),
@@ -195,10 +197,6 @@ class _ChatPageState extends State<ChatPage> {
       ),
     );
   }
-
-
-
-
 
   // 카테고리에 따라 채팅방 필터링
   List<Map<String, dynamic>> _filteredChatRooms(List<Map<String, dynamic>> chatRooms) {

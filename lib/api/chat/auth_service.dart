@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../../config.dart';
-import 'authme_service.dart';
+import '../login/authme_service.dart';
 import '../chat/socket_message_service.dart';
 
 class AuthService with WidgetsBindingObserver {
@@ -65,9 +65,8 @@ class AuthService with WidgetsBindingObserver {
 
   String? get accessToken => _accessToken;
 
-  // dispose에서 부모 클래스의 dispose를 호출할 필요가 없습니다.
+  // 부모 클래스의 dispose 호출을 제거합니다.
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _socketMessageService.closeWebSocket(); // WebSocket 종료
   }
 }
