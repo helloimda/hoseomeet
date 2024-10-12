@@ -84,10 +84,18 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   void _connectWebSocket() {
     socketMessageService.connectWebSocket();
-    socketMessageService.messageStream.listen((message) {
+    socketMessageService.messageStream.listen((message) async {
       setState(() {
         messages.add(message); // 새 메시지를 리스트에 추가
       });
+
+      // 웹소켓으로 새 메시지를 수신했을 때 읽음 처리
+      try {
+        await messageReadService.markNewestMessageAsRead(streamId: widget.chatRoom['stream_id']);
+        print('Newest message marked as read.');
+      } catch (error) {
+        print('Error marking newest message as read: $error');
+      }
     });
   }
 
