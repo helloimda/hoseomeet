@@ -145,95 +145,101 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.chatRoom['name'] ?? 'No Title'),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(1.0),
-          child: Divider(color: Colors.red, thickness: 1.0),
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                final message = messages[index];
-                bool isMe = message['sender_id'] == _userId;
-
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                  child: Row(
-                    mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-                    children: [
-                      if (!isMe) ...[
-                        CircleAvatar(
-                          radius: 20,
-                          backgroundColor: Colors.purple.shade200,
-                        ),
-                        SizedBox(width: 8),
-                      ],
-                      Column(
-                        crossAxisAlignment:
-                        isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: isMe ? Colors.pink.shade100 : Colors.grey.shade300,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            constraints: BoxConstraints(maxWidth: 200),
-                            child: Text(
-                              message['content'] ?? '',
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            _formatTime(message['date_sent'] ?? 0),
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context, 'reload');
+        return false; // 기본 뒤로가기 동작을 취소
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.chatRoom['name'] ?? 'No Title'),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black,
+          elevation: 0,
+          bottom: PreferredSize(
+            preferredSize: Size.fromHeight(1.0),
+            child: Divider(color: Colors.red, thickness: 1.0),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _messageController,
-                    decoration: InputDecoration(
-                      hintText: '메시지를 입력하세요...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  final message = messages[index];
+                  bool isMe = message['sender_id'] == _userId;
+
+                  return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                      children: [
+                        if (!isMe) ...[
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: Colors.purple.shade200,
+                          ),
+                          SizedBox(width: 8),
+                        ],
+                        Column(
+                          crossAxisAlignment:
+                          isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: isMe ? Colors.pink.shade100 : Colors.grey.shade300,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              constraints: BoxConstraints(maxWidth: 200),
+                              child: Text(
+                                message['content'] ?? '',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              _formatTime(message['date_sent'] ?? 0),
+                              style: TextStyle(color: Colors.grey, fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: InputDecoration(
+                        hintText: '메시지를 입력하세요...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.grey.shade200,
+                        contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                       ),
-                      filled: true,
-                      fillColor: Colors.grey.shade200,
-                      contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send, color: Colors.red),
-                  onPressed: _sendMessage, // 메시지 전송 함수 호출
-                ),
-              ],
+                  IconButton(
+                    icon: Icon(Icons.send, color: Colors.red),
+                    onPressed: _sendMessage, // 메시지 전송 함수 호출
+                  ),
+                ],
+              ),
             ),
-          ),
-          SizedBox(height: 10),
-        ],
+            SizedBox(height: 10),
+          ],
+        ),
       ),
     );
   }

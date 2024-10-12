@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart';  // DateFormat을 사용하기 위한 import
 import '../../api/chat/load_roomlist_service.dart'; // LoadRoomListService import
 import '../../api/chat/socket_message_service.dart'; // SocketMessageService import
 import '../../api/login/login_service.dart'; // AuthService import
@@ -149,7 +149,6 @@ class _ChatPageState extends State<ChatPage> {
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Center(child: Text('채팅방 목록이 없습니다.'));
                   } else {
-                    // 데이터를 성공적으로 받아온 경우
                     chatRooms = List<Map<String, dynamic>>.from(snapshot.data!);
                     final filteredChatRooms = _filteredChatRooms(chatRooms);
                     return ListView.builder(
@@ -157,13 +156,19 @@ class _ChatPageState extends State<ChatPage> {
                       itemBuilder: (context, index) {
                         final chatRoom = filteredChatRooms[index];
                         return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
+                          onTap: () async {
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => ChatDetailPage(chatRoom: chatRoom),
                               ),
                             );
+
+                            if (result == 'reload') {
+                              setState(() {
+                                _chatRoomsFuture = loadRoomListService.loadRoomList();
+                              });
+                            }
                           },
                           child: _buildChatRoomItem(chatRoom), // _buildChatRoomItem 메서드 사용
                         );
@@ -221,7 +226,6 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ),
                 SizedBox(width: 8),
-                // 마지막 메시지의 date_sent 필드를 오전/오후 시간 형식으로 출력
                 Text(
                   chatRoom['last_message'] is Map ? (chatRoom['last_message']['date_sent'] ?? 'Unknown') : 'Unknown',
                   style: TextStyle(color: Colors.grey, fontSize: 12),
@@ -234,7 +238,6 @@ class _ChatPageState extends State<ChatPage> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             SizedBox(height: 2),
-            // 마지막 메시지의 content 필드를 올바르게 출력
             Text(
               chatRoom['last_message'] is Map ? (chatRoom['last_message']['content'] ?? 'No messages') : 'No messages',
               style: TextStyle(color: Colors.grey[600]),
