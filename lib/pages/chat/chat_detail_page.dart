@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart'; // DateFormat 사용을 위한 패키지
-import '../../api/chat/load_message_service.dart'; // LoadMessageService import
-import '../../api/chat/send_message_service.dart'; // SendMessageService import
-import '../../api/login/login_service.dart'; // AuthService import
-import '../../api/login/authme_service.dart'; // AuthMeService import
+import 'package:intl/intl.dart';
+import '../../api/chat/load_message_service.dart';
+import '../../api/chat/send_message_service.dart';
+import '../../api/chat/socket_message_service.dart'; // SocketMessageService import
+import '../../api/login/authme_service.dart';
+import '../../api/login/login_service.dart';
 
 class ChatDetailPage extends StatefulWidget {
   final Map<String, dynamic> chatRoom;
@@ -15,72 +16,104 @@ class ChatDetailPage extends StatefulWidget {
 }
 
 class _ChatDetailPageState extends State<ChatDetailPage> {
-  late Future<List<dynamic>> _messagesFuture;
   late final LoadMessageService loadMessageService;
   late final SendMessageService sendMessageService;
-  final TextEditingController _messageController = TextEditingController(); // 메시지 입력 필드 컨트롤러
-  int? _userId; // 현재 사용자의 ID를 저장할 변수
+  late final SocketMessageService socketMessageService;
+  final TextEditingController _messageController = TextEditingController();
+  List<Map<String, dynamic>> messages = []; // 채팅 메시지를 저장할 리스트
+  int? _userId;
 
   @override
   void initState() {
     super.initState();
     final authService = AuthService(); // AuthService 인스턴스 생성
-    loadMessageService = LoadMessageService(authService); // AuthService 전달
-    sendMessageService = SendMessageService(authService); // SendMessageService 인스턴스
+    loadMessageService = LoadMessageService(authService);
+    sendMessageService = SendMessageService(authService);
+    socketMessageService = SocketMessageService(authService.accessToken!);
 
     // AuthMeService를 사용해 로그인된 사용자 ID를 가져옴
     _fetchUserId();
 
-    // stream_id를 인자로 전달하여 메시지 불러오기
-    _messagesFuture = loadMessageService.loadMessages(widget.chatRoom['stream_id']);
+    // 이전 메시지 로드
+    _loadPreviousMessages();
+
+    // 웹소켓 연결 및 메시지 수신 처리
+    _connectWebSocket();
   }
 
   Future<void> _fetchUserId() async {
     final authMeService = AuthMeService(AuthService().accessToken!);
-    await authMeService.fetchAndStoreUserId(); // ID 가져오기
+    await authMeService.fetchAndStoreUserId();
     setState(() {
-      _userId = authMeService.userId; // 가져온 ID를 설정
+      _userId = authMeService.userId;
     });
   }
 
-  String _formatTime(String timestamp) {
-    // 서버에서 받은 ISO 8601 타임스탬프를 DateTime 객체로 변환
-    DateTime dateTime = DateTime.parse(timestamp);
-
-    // 원하는 형식으로 포맷 (오전/오후 12:00)
-    String formattedTime = DateFormat('a h:mm', 'ko_KR').format(dateTime);
-
-    return formattedTime;
+  Future<void> _loadPreviousMessages() async {
+    try {
+      // 서버로부터 이전 메시지 로드
+      final List<dynamic> previousMessages = await loadMessageService.loadMessages(widget.chatRoom['stream_id']);
+      setState(() {
+        // 기존 메시지 리스트에 이전 메시지를 추가 (타입을 명확하게 캐스팅)
+        messages.addAll(previousMessages.cast<Map<String, dynamic>>());
+      });
+    } catch (error) {
+      print('이전 메시지를 불러오는데 실패했습니다: $error');
+    }
   }
+
+
+  void _connectWebSocket() {
+    socketMessageService.connectWebSocket();
+    socketMessageService.messageStream.listen((message) {
+      setState(() {
+        messages.add(message); // 새 메시지를 리스트에 추가
+      });
+    });
+  }
+
+  String _formatTime(dynamic timestamp) {
+    try {
+      // timestamp가 int일 경우 DateTime으로 변환, String일 경우 그대로 처리
+      DateTime dateTime;
+      if (timestamp is int) {
+        dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000).toLocal();
+      } else if (timestamp is String) {
+        dateTime = DateTime.parse(timestamp).toLocal();
+      } else {
+        throw Exception('Invalid timestamp format');
+      }
+
+      String formattedTime = DateFormat('a h:mm', 'ko_KR').format(dateTime);
+      return formattedTime;
+    } catch (error) {
+      print('타임스탬프 변환 오류: $error');
+      return 'Unknown';
+    }
+  }
+
+
+
 
   Future<void> _sendMessage() async {
     String messageContent = _messageController.text.trim();
     if (messageContent.isNotEmpty && _userId != null) {
       try {
-        // SendMessageService를 사용하여 메시지 전송
         await sendMessageService.sendMessage(
-          streamId: widget.chatRoom['stream_id'], // streamId를 전달
+          streamId: widget.chatRoom['stream_id'],
           messageContent: messageContent,
         );
         _messageController.clear(); // 메시지 전송 후 입력 필드 초기화
-
-        // 새 메시지를 전송 후 목록 새로고침
-        _loadMessages();
       } catch (error) {
         print('메시지 전송 실패: $error');
       }
     }
   }
 
-  void _loadMessages() {
-    setState(() {
-      _messagesFuture = loadMessageService.loadMessages(widget.chatRoom['stream_id']);
-    });
-  }
-
   @override
   void dispose() {
     _messageController.dispose();
+    socketMessageService.dispose(); // WebSocket 종료
     super.dispose();
   }
 
@@ -88,7 +121,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.chatRoom['name'] ?? 'No Title'), // 채팅방 이름
+        title: Text(widget.chatRoom['name'] ?? 'No Title'),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
@@ -100,70 +133,51 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       body: Column(
         children: [
           Expanded(
-            child: FutureBuilder<List<dynamic>>(
-              future: _messagesFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator()); // 로딩 중
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('메시지를 불러오는데 실패했습니다.'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Center(child: Text('메시지가 없습니다.'));
-                } else {
-                  final messages = snapshot.data!;
-                  return ListView.builder(
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final message = messages[index];
-                      bool isMe = message['sender_id'] == _userId; // 현재 사용자 ID와 비교
+            child: ListView.builder(
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final message = messages[index];
+                bool isMe = message['sender_id'] == _userId; // 현재 사용자 ID와 비교
 
-                      return Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                        child: Row(
-                          mainAxisAlignment:
-                          isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-                          children: [
-                            if (!isMe) ...[
-                              CircleAvatar(
-                                radius: 20,
-                                backgroundColor: Colors.purple.shade200,
-                              ),
-                              SizedBox(width: 8),
-                            ],
-                            Column(
-                              crossAxisAlignment:
-                              isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: isMe
-                                        ? Colors.pink.shade100
-                                        : Colors.grey.shade300,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  constraints: BoxConstraints(maxWidth: 200),
-                                  child: Text(
-                                    message['content'] ?? '',
-                                    style: TextStyle(
-                                      color: isMe ? Colors.black : Colors.black,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  _formatTime(message['date_sent'] ?? 'Unknown'), // 타임스탬프 출력
-                                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                                ),
-                              ],
-                            ),
-                          ],
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                  child: Row(
+                    mainAxisAlignment:
+                    isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                    children: [
+                      if (!isMe) ...[
+                        CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.purple.shade200,
                         ),
-                      );
-                    },
-                  );
-                }
+                        SizedBox(width: 8),
+                      ],
+                      Column(
+                        crossAxisAlignment:
+                        isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: isMe ? Colors.pink.shade100 : Colors.grey.shade300,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            constraints: BoxConstraints(maxWidth: 200),
+                            child: Text(
+                              message['content'] ?? '',
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            _formatTime(message['date_sent'] ?? 0),
+                            style: TextStyle(color: Colors.grey, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
               },
             ),
           ),
@@ -182,8 +196,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       ),
                       filled: true,
                       fillColor: Colors.grey.shade200,
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 10.0, horizontal: 20.0),
+                      contentPadding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
                     ),
                   ),
                 ),
