@@ -4,6 +4,7 @@ import '../../api/chat/create_room_service.dart'; // CreateRoomService import
 import '../../api/chat/subcription_room_service.dart'; // JoinRoomService import
 import '../../api/chat/load_roomlist_service.dart'; // LoadRoomListService import
 import '../../api/chat/send_message_service.dart'; // SendMessageService import
+import '../../api/chat/message_read_service.dart'; // MessageReadService import
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -16,12 +17,14 @@ class _ProfilePageState extends State<ProfilePage> {
   late final JoinRoomService joinRoomService; // JoinRoomService 추가
   late final LoadRoomListService loadRoomListService; // LoadRoomListService 추가
   late final SendMessageService sendMessageService; // SendMessageService 추가
+  late final MessageReadService messageReadService; // MessageReadService 추가
 
   final TextEditingController _roomNameController = TextEditingController(); // 방 이름 입력용
   final TextEditingController _roomTypeController = TextEditingController(); // 방 타입 입력용
   final TextEditingController _roomIdController = TextEditingController(); // Room ID 입력용
   final TextEditingController _streamIdController = TextEditingController(); // Stream ID 입력용
   final TextEditingController _messageController = TextEditingController(); // 메시지 입력용
+  final TextEditingController _numAfterController = TextEditingController(); // num_after 입력용
 
   @override
   void initState() {
@@ -30,6 +33,7 @@ class _ProfilePageState extends State<ProfilePage> {
     joinRoomService = JoinRoomService(authService); // JoinRoomService 초기화
     loadRoomListService = LoadRoomListService(authService); // LoadRoomListService 초기화
     sendMessageService = SendMessageService(authService); // SendMessageService 초기화
+    messageReadService = MessageReadService(authService); // MessageReadService 초기화
   }
 
   @override
@@ -39,18 +43,18 @@ class _ProfilePageState extends State<ProfilePage> {
     _roomIdController.dispose(); // 컨트롤러 해제
     _streamIdController.dispose(); // 컨트롤러 해제
     _messageController.dispose(); // 컨트롤러 해제
+    _numAfterController.dispose(); // 컨트롤러 해제
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: SingleChildScrollView( // 스크롤 가능하도록 추가
+      child: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text('Profile Page'),
-
             // Room Name 입력 텍스트박스
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -224,6 +228,63 @@ class _ProfilePageState extends State<ProfilePage> {
                 }
               },
               child: Text('Button 5 - 메시지 전송'),
+            ),
+
+            // Stream ID 입력 텍스트박스 (메시지 읽음 처리용)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _streamIdController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Stream ID 입력',
+                ),
+                keyboardType: TextInputType.number, // 숫자 입력용 키보드
+              ),
+            ),
+
+            // num_after 입력 텍스트박스 (메시지 읽음 처리용)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _numAfterController,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'num_after 입력',
+                ),
+                keyboardType: TextInputType.number, // 숫자 입력용 키보드
+              ),
+            ),
+
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  final streamId = int.tryParse(_streamIdController.text);
+                  final numAfter = int.tryParse(_numAfterController.text) ?? 0;
+
+                  if (streamId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('유효한 Stream ID를 입력하세요.')),
+                    );
+                    return;
+                  }
+
+                  // MessageReadService 호출
+                  await messageReadService.markMessagesAsRead(
+                    streamId: streamId,
+                    numAfter: numAfter,
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('메시지 읽음 처리 성공')),
+                  );
+                } catch (error) {
+                  print('오류 발생: $error');
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('오류 발생: $error')),
+                  );
+                }
+              },
+              child: Text('Button 6 - 메시지 읽음 처리'),
             ),
           ],
         ),

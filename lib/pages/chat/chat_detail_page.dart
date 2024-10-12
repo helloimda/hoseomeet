@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../api/chat/load_message_service.dart';
 import '../../api/chat/send_message_service.dart';
 import '../../api/chat/socket_message_service.dart'; // SocketMessageService import
+import '../../api/chat/message_read_service.dart'; // MessageReadService import
 import '../../api/login/authme_service.dart';
 import '../../api/login/login_service.dart';
 
@@ -19,6 +20,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   late final LoadMessageService loadMessageService;
   late final SendMessageService sendMessageService;
   late final SocketMessageService socketMessageService;
+  late final MessageReadService messageReadService; // MessageReadService 추가
   final TextEditingController _messageController = TextEditingController();
   List<Map<String, dynamic>> messages = []; // 채팅 메시지를 저장할 리스트
   int? _userId;
@@ -30,6 +32,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     loadMessageService = LoadMessageService(authService);
     sendMessageService = SendMessageService(authService);
     socketMessageService = SocketMessageService(authService.accessToken!);
+    messageReadService = MessageReadService(authService); // MessageReadService 초기화
 
     // AuthMeService를 사용해 로그인된 사용자 ID를 가져옴
     _fetchUserId();
@@ -39,6 +42,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
     // 웹소켓 연결 및 메시지 수신 처리
     _connectWebSocket();
+
+    // 메시지 읽음 처리
+    _markMessagesAsRead();
   }
 
   Future<void> _fetchUserId() async {
@@ -54,7 +60,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       // 서버로부터 이전 메시지 로드
       final List<dynamic> previousMessages = await loadMessageService.loadMessages(widget.chatRoom['stream_id']);
       setState(() {
-        // 기존 메시지 리스트에 이전 메시지를 추가 (타입을 명확하게 캐스팅)
         messages.addAll(previousMessages.cast<Map<String, dynamic>>());
       });
     } catch (error) {
@@ -62,6 +67,20 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     }
   }
 
+  Future<void> _markMessagesAsRead() async {
+    try {
+      final unreadMessageCount = widget.chatRoom['unread_message_count'] ?? 0;
+      print('Marking messages as read. Stream ID: ${widget.chatRoom['stream_id']}, Unread Count: $unreadMessageCount');
+
+      await messageReadService.markMessagesAsRead(
+        streamId: widget.chatRoom['stream_id'],
+        numAfter: unreadMessageCount,
+      );
+      print('Messages marked as read successfully.');
+    } catch (error) {
+      print('Error marking messages as read: $error');
+    }
+  }
 
   void _connectWebSocket() {
     socketMessageService.connectWebSocket();
@@ -74,7 +93,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   String _formatTime(dynamic timestamp) {
     try {
-      // timestamp가 int일 경우 DateTime으로 변환, String일 경우 그대로 처리
       DateTime dateTime;
       if (timestamp is int) {
         dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000).toLocal();
@@ -91,9 +109,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       return 'Unknown';
     }
   }
-
-
-
 
   Future<void> _sendMessage() async {
     String messageContent = _messageController.text.trim();
@@ -137,13 +152,12 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               itemCount: messages.length,
               itemBuilder: (context, index) {
                 final message = messages[index];
-                bool isMe = message['sender_id'] == _userId; // 현재 사용자 ID와 비교
+                bool isMe = message['sender_id'] == _userId;
 
                 return Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   child: Row(
-                    mainAxisAlignment:
-                    isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                    mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
                     children: [
                       if (!isMe) ...[
                         CircleAvatar(
