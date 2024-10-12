@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../api/chat/load_roomlist_service.dart'; // LoadRoomListService import
+import '../../api/chat/socket_message_service.dart'; // SocketMessageService import
 import '../../api/login/login_service.dart'; // AuthService import
 import '../../widgets/category_button.dart';
 import 'chat_detail_page.dart'; // ChatDetailPage 파일을 가져옴
@@ -13,11 +15,57 @@ class _ChatPageState extends State<ChatPage> {
   String selectedCategory = "전체"; // 선택된 카테고리
   late Future<List<dynamic>> _chatRoomsFuture; // 채팅방 목록을 저장할 Future
   final LoadRoomListService loadRoomListService = LoadRoomListService(AuthService());
+  late final SocketMessageService socketMessageService;
+  List<Map<String, dynamic>> chatRooms = [];
 
   @override
   void initState() {
     super.initState();
     _chatRoomsFuture = loadRoomListService.loadRoomList(); // API 호출을 통해 채팅방 목록을 로드
+    _connectWebSocket(); // 웹소켓 연결 및 메시지 수신 처리
+  }
+
+  // 웹소켓 연결 및 메시지 수신 처리
+  void _connectWebSocket() {
+    socketMessageService = SocketMessageService(AuthService().accessToken!);
+    socketMessageService.connectWebSocket();
+    socketMessageService.messageStream.listen((message) {
+      _handleNewMessage(message);
+    });
+  }
+
+  // 새로운 메시지 수신 시 처리
+  void _handleNewMessage(Map<String, dynamic> message) {
+    setState(() {
+      final streamId = message['stream_id'];
+      final updatedChatRooms = chatRooms.map((chatRoom) {
+        if (chatRoom['stream_id'] == streamId) {
+          chatRoom['unread_message_count'] = (chatRoom['unread_message_count'] ?? 0) + 1;
+          chatRoom['last_message'] = message;
+          chatRoom['last_message']['date_sent'] = _formatTime(message['date_sent']);
+        }
+        return chatRoom;
+      }).toList();
+      chatRooms = updatedChatRooms;
+    });
+  }
+
+  // 시간을 "오전/오후 h:mm" 형태로 변환
+  String _formatTime(dynamic timestamp) {
+    try {
+      DateTime dateTime;
+      if (timestamp is int) {
+        dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000).toLocal();
+      } else if (timestamp is String) {
+        dateTime = DateTime.parse(timestamp).toLocal();
+      } else {
+        throw Exception('Invalid timestamp format');
+      }
+      return DateFormat('a h:mm', 'ko_KR').format(dateTime);
+    } catch (error) {
+      print('타임스탬프 변환 오류: $error');
+      return 'Unknown';
+    }
   }
 
   // 카테고리 선택
@@ -102,7 +150,7 @@ class _ChatPageState extends State<ChatPage> {
                     return Center(child: Text('채팅방 목록이 없습니다.'));
                   } else {
                     // 데이터를 성공적으로 받아온 경우
-                    final List<Map<String, dynamic>> chatRooms = List<Map<String, dynamic>>.from(snapshot.data!);
+                    chatRooms = List<Map<String, dynamic>>.from(snapshot.data!);
                     final filteredChatRooms = _filteredChatRooms(chatRooms);
                     return ListView.builder(
                       itemCount: filteredChatRooms.length,
@@ -173,7 +221,7 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ),
                 SizedBox(width: 8),
-                // 마지막 메시지의 date_sent 필드를 올바르게 출력
+                // 마지막 메시지의 date_sent 필드를 오전/오후 시간 형식으로 출력
                 Text(
                   chatRoom['last_message'] is Map ? (chatRoom['last_message']['date_sent'] ?? 'Unknown') : 'Unknown',
                   style: TextStyle(color: Colors.grey, fontSize: 12),
