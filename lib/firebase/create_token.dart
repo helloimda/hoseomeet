@@ -1,0 +1,49 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/widgets.dart'; // Flutter 엔진 초기화
+
+class TokenManager {
+  static const String _tokenKey = 'fcm_token';
+
+  // 토큰 발급 및 저장
+  static Future<String?> createToken() async {
+    try {
+      // Flutter 엔진 초기화 (필요할 경우 추가)
+      WidgetsFlutterBinding.ensureInitialized();
+
+      // 로컬 저장소에서 기존 토큰 확인
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? existingToken = prefs.getString(_tokenKey);
+
+      // 기존 토큰이 존재하면 재발급하지 않음
+      if (existingToken != null) {
+        print("기존 FCM 토큰 사용: $existingToken");
+        return existingToken;
+      }
+
+      // FirebaseMessaging 인스턴스 생성 및 토큰 요청
+      FirebaseMessaging messaging = FirebaseMessaging.instance;
+      String? newToken = await messaging.getToken();
+
+      if (newToken != null) {
+        // 토큰 발급 성공 시 로컬 저장소에 저장
+        await prefs.setString(_tokenKey, newToken);
+        print("FCM 토큰 발급 성공: $newToken");
+        return newToken;
+      } else {
+        print("FCM 토큰 발급 실패");
+        return null;
+      }
+    } catch (e) {
+      print("FCM 토큰 발급 중 오류 발생: $e");
+      return null;
+    }
+  }
+
+  // 로컬 저장소에 저장된 토큰 삭제
+  static Future<void> deleteToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_tokenKey);
+    print("로컬 저장소의 FCM 토큰이 삭제되었습니다.");
+  }
+}

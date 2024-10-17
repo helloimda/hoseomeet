@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../../config.dart';
 import 'authme_service.dart';
 import '../chat/socket_message_service.dart';
+import '../../firebase/create_token.dart'; // FCM 토큰 발급 함수를 import
 
 class AuthService with WidgetsBindingObserver {
   String? _accessToken;
@@ -58,10 +59,22 @@ class AuthService with WidgetsBindingObserver {
 
       _socketMessageService = SocketMessageService(_accessToken!);
       await _socketMessageService.connectWebSocket();
+
+      // 로그인 성공 시 FCM 토큰 발급
+      String? fcmToken = await TokenManager.createToken(); // FCM 토큰 발급 호출
+
+      // FCM 토큰이 정상적으로 발급되었는지 확인
+      if (fcmToken != null) {
+        print("로그인 후 FCM 토큰: $fcmToken");
+      } else {
+        print("FCM 토큰 발급 실패 또는 null 반환");
+      }
     }
 
     return response;
   }
+
+
 
   String? get accessToken => _accessToken;
 
