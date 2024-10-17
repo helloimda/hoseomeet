@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "825899806028",
+    "project_id": "hoseo-meet",
+    "storage_bucket": "hoseo-meet.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:825899806028:android:ea12eb3cace5824a4af3e9",
+        "android_client_info": {
+          "package_name": "com.company.hoseomeet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCY5hBLMf1bIEghCfCqC92fQ0ZVhjjZvRc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
