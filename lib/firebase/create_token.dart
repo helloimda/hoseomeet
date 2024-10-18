@@ -1,6 +1,8 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/widgets.dart'; // Flutter 엔진 초기화
+import 'api/send_token_service.dart'; // SendTokenService import
+import '../../api/login/login_service.dart'; // AuthService import
 
 class TokenManager {
   static const String _tokenKey = 'fcm_token';
@@ -29,6 +31,14 @@ class TokenManager {
         // 토큰 발급 성공 시 로컬 저장소에 저장
         await prefs.setString(_tokenKey, newToken);
         print("FCM 토큰 발급 성공: $newToken");
+
+        // FCM 토큰 발급 성공 시 서버로 전송 (AuthService에서 토큰을 받아와야 함)
+        AuthService authService = AuthService(); // AuthService 인스턴스 생성
+        SendTokenService sendTokenService = SendTokenService(authService);
+
+        // SendTokenService를 사용하여 서버로 FCM 토큰 전송
+        await sendTokenService.sendToken(newToken);
+
         return newToken;
       } else {
         print("FCM 토큰 발급 실패");
