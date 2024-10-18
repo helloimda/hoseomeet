@@ -28,16 +28,22 @@ class TokenManager {
       String? newToken = await messaging.getToken();
 
       if (newToken != null) {
-        // 토큰 발급 성공 시 로컬 저장소에 저장
-        await prefs.setString(_tokenKey, newToken);
         print("FCM 토큰 발급 성공: $newToken");
 
         // FCM 토큰 발급 성공 시 서버로 전송 (AuthService에서 토큰을 받아와야 함)
         AuthService authService = AuthService(); // AuthService 인스턴스 생성
         SendTokenService sendTokenService = SendTokenService(authService);
 
-        // SendTokenService를 사용하여 서버로 FCM 토큰 전송
-        await sendTokenService.sendToken(newToken);
+        // SendTokenService를 사용하여 서버로 FCM 토큰 전송 후 응답 확인
+        final response = await sendTokenService.sendToken(newToken);
+
+        if (response.statusCode == 200) {
+          // 응답이 성공일 경우 로컬 저장소에 토큰 저장
+          await prefs.setString(_tokenKey, newToken);
+          print("FCM 토큰이 서버로 전송되었고, 로컬 저장소에 저장되었습니다.");
+        } else {
+          print("서버로 FCM 토큰 전송 실패: ${response.statusCode}");
+        }
 
         return newToken;
       } else {

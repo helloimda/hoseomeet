@@ -10,12 +10,14 @@ class SendTokenService {
   SendTokenService(this._authService);
 
   // FCM 토큰을 서버에 전송하는 함수
-  Future<void> sendToken(String fcmToken) async {
+  Future<http.Response> sendToken(String fcmToken) async {
     String? token = _authService.accessToken;
 
-    if (token == null) {
-      throw Exception('액세스 토큰이 없습니다. 로그인이 필요합니다.');
-    }
+
+    // 릴리즈 배포할때 주석을 제거해야함
+    // if (token == null) {
+    //   throw Exception('액세스 토큰이 없습니다. 로그인이 필요합니다.');
+    // }
 
     // 헤더 설정
     final headers = {
@@ -37,14 +39,10 @@ class SendTokenService {
         body: body,
       );
 
-      if (response.statusCode == 200) {
-        print('FCM 토큰 전송 성공');
-      } else {
-        print('FCM 토큰 전송 실패: ${response.statusCode}');
-        print('응답 데이터: ${response.body}');
-      }
+      return response; // response 반환
     } catch (e) {
       print('FCM 토큰 전송 중 오류 발생: $e');
+      rethrow; // 오류를 다시 던집니다.
     }
   }
 }
