@@ -206,6 +206,33 @@ class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
                 ),
               ),
               SizedBox(height: 16),
+              SizedBox(
+                width: buttonWidth,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    // FCM 토큰 삭제 버튼 클릭 시
+                    await TokenManager.deleteToken();
+                    _tokenController.clear(); // 토큰 필드를 비움
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('FCM 토큰이 삭제되었습니다.')),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: Text(
+                    'FCM 토큰 삭제',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
