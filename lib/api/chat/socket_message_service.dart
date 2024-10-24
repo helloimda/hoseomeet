@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import '../../config.dart'; // AppConfig를 import합니다.
 
 class SocketMessageService {
-  //final String socketUrl = 'ws://127.0.0.1:8000/api/v1/events/connect';
-   final String socketUrl = 'ws://10.0.2.2:8000/api/v1/events/connect'; //에뮬레이터는 해당 호스트를 사용해야함
- //final String socketUrl = 'ws:/www.campus-meet.shop/api/v1/events/connect'; //실제 릴리즈앱은 도메인 사용해야함
-   // 배포시 config.dart와 연동후 사용
   final String _token;
+  final String socketUrl = AppConfig.socketUrl; // AppConfig에서 socketUrl을 가져옵니다.
 
   WebSocket? _socket;
   StreamController<Map<String, dynamic>> _messageStreamController = StreamController.broadcast();
@@ -22,7 +20,7 @@ class SocketMessageService {
     const maxRetries = 3;
 
     while (retryCount < maxRetries) {
-      print("현재 토큰값은 ${_token}입니다. 웹소켓 시작");
+      print("현재 토큰값은 $_token입니다. 웹소켓 시작");
       try {
         _socket = await WebSocket.connect(
           socketUrl,
@@ -56,11 +54,15 @@ class SocketMessageService {
 
       if (decodedData['data'] != null && decodedData['data']['type'] == 'stream') {
         _messageStreamController.add(decodedData['data']['data']);
+        print('스트림 데이터 추가: ${decodedData['data']['data']}');
+      } else {
+        print('유효하지 않은 메시지 형식');
       }
     } catch (error) {
       print('메시지 처리 중 오류 발생: $error');
     }
   }
+
 
   void _onSocketDone() {
     print('WebSocket 연결이 종료되었습니다.');

@@ -43,7 +43,7 @@ class SendMessageService {
     if (response.statusCode == 200) {
       print('메시지 전송 성공: ${response.body}');
     } else {
-      throw Exception('메시지 전송에 실패했습니다: ${response.statusCode}');
+      throw Exception('메시지 전송에 실패했습니다: ${response.body}');
     }
   }
 }

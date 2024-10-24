@@ -22,17 +22,17 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
     _chatRoomsFuture = loadRoomListService.loadRoomList(); // API 호출을 통해 채팅방 목록을 로드
-    _connectWebSocket(); // 웹소켓 연결 및 메시지 수신 처리
+    // _connectWebSocket(); // 웹소켓 연결 및 메시지 수신 처리
   }
 
-  // 웹소켓 연결 및 메시지 수신 처리
-  void _connectWebSocket() {
-    socketMessageService = SocketMessageService(AuthService().accessToken!);
-    socketMessageService.connectWebSocket();
-    socketMessageService.messageStream.listen((message) {
-      _handleNewMessage(message);
-    });
-  }
+  // // 웹소켓 연결 및 메시지 수신 처리
+  // void _connectWebSocket() {
+  //   socketMessageService = SocketMessageService(AuthService().accessToken!);
+  //   socketMessageService.connectWebSocket();
+  //   socketMessageService.messageStream.listen((message) {
+  //     _handleNewMessage(message);
+  //   });
+  // }
 
   // 새로운 메시지 수신 시 처리
   void _handleNewMessage(Map<String, dynamic> message) {

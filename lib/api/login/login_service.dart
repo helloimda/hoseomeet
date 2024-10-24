@@ -57,6 +57,7 @@ class AuthService with WidgetsBindingObserver {
       final authMeService = AuthMeService(_accessToken!);
       await authMeService.fetchAndStoreUserId();
 
+      // 소켓 연결을 로그인 후에 한번만 실행
       _socketMessageService = SocketMessageService(_accessToken!);
       await _socketMessageService.connectWebSocket();
 
@@ -74,11 +75,11 @@ class AuthService with WidgetsBindingObserver {
     return response;
   }
 
-
+  // 소켓 메시지 스트림 접근을 위한 메서드
+  Stream<Map<String, dynamic>> get messageStream => _socketMessageService.messageStream;
 
   String? get accessToken => _accessToken;
 
-  // dispose에서 부모 클래스의 dispose를 호출할 필요가 없습니다.
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _socketMessageService.closeWebSocket(); // WebSocket 종료

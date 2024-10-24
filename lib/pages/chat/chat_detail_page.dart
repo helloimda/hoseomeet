@@ -20,30 +20,24 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   late final LoadMessageService loadMessageService;
   late final SendMessageService sendMessageService;
   late final SocketMessageService socketMessageService;
-  late final MessageReadService messageReadService; // MessageReadService 추가
+  late final MessageReadService messageReadService;
   final TextEditingController _messageController = TextEditingController();
-  List<Map<String, dynamic>> messages = []; // 채팅 메시지를 저장할 리스트
+  List<Map<String, dynamic>> messages = [];
   int? _userId;
+  final ScrollController _scrollController = ScrollController(); // ScrollController 추가
 
   @override
   void initState() {
     super.initState();
-    final authService = AuthService(); // AuthService 인스턴스 생성
+    final authService = AuthService();
     loadMessageService = LoadMessageService(authService);
     sendMessageService = SendMessageService(authService);
     socketMessageService = SocketMessageService(authService.accessToken!);
-    messageReadService = MessageReadService(authService); // MessageReadService 초기화
+    messageReadService = MessageReadService(authService);
 
-    // AuthMeService를 사용해 로그인된 사용자 ID를 가져옴
     _fetchUserId();
-
-    // 이전 메시지 로드
     _loadPreviousMessages();
-
-    // 웹소켓 연결 및 메시지 수신 처리
     _connectWebSocket();
-
-    // 메시지 읽음 처리
     _markMessagesAsRead();
   }
 
@@ -57,11 +51,11 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
   Future<void> _loadPreviousMessages() async {
     try {
-      // 서버로부터 이전 메시지 로드
       final List<dynamic> previousMessages = await loadMessageService.loadMessages(widget.chatRoom['stream_id']);
       setState(() {
         messages.addAll(previousMessages.cast<Map<String, dynamic>>());
       });
+      _scrollToBottom(); // 메시지 로드 후 하단으로 스크롤
     } catch (error) {
       print('이전 메시지를 불러오는데 실패했습니다: $error');
     }
@@ -86,18 +80,27 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     socketMessageService.connectWebSocket();
     socketMessageService.messageStream.listen((message) async {
       if (message['stream_id'] == widget.chatRoom['stream_id']) {
-        // 메시지가 현재 채팅방의 stream_id와 일치하는 경우에만 처리
         setState(() {
-          messages.add(message); // 새 메시지를 리스트에 추가
+          messages.add(message);
         });
 
-        // 웹소켓으로 새 메시지를 수신했을 때 읽음 처리
+        // 새 메시지가 수신되면 하단으로 스크롤
+        _scrollToBottom();
+
         try {
           await messageReadService.markNewestMessageAsRead(streamId: widget.chatRoom['stream_id']);
           print('Newest message marked as read.');
         } catch (error) {
           print('Error marking newest message as read: $error');
         }
+      }
+    });
+  }
+
+  void _scrollToBottom() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       }
     });
   }
@@ -129,7 +132,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
           streamId: widget.chatRoom['stream_id'],
           messageContent: messageContent,
         );
-        _messageController.clear(); // 메시지 전송 후 입력 필드 초기화
+        _messageController.clear();
+        _scrollToBottom(); // 메시지 전송 후 하단으로 스크롤
       } catch (error) {
         print('메시지 전송 실패: $error');
       }
@@ -139,7 +143,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   @override
   void dispose() {
     _messageController.dispose();
-    socketMessageService.dispose(); // WebSocket 종료
+    socketMessageService.dispose();
+    _scrollController.dispose(); // ScrollController 해제
     super.dispose();
   }
 
@@ -148,7 +153,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     return WillPopScope(
       onWillPop: () async {
         Navigator.pop(context, 'reload');
-        return false; // 기본 뒤로가기 동작을 취소
+        return false;
       },
       child: Scaffold(
         appBar: AppBar(
@@ -165,6 +170,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
           children: [
             Expanded(
               child: ListView.builder(
+                controller: _scrollController, // ScrollController 연결
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
                   final message = messages[index];
@@ -183,8 +189,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                           SizedBox(width: 8),
                         ],
                         Column(
-                          crossAxisAlignment:
-                          isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                          crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                           children: [
                             Container(
                               padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
@@ -232,7 +237,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                   ),
                   IconButton(
                     icon: Icon(Icons.send, color: Colors.red),
-                    onPressed: _sendMessage, // 메시지 전송 함수 호출
+                    onPressed: _sendMessage,
                   ),
                 ],
               ),
