@@ -10,7 +10,7 @@ import '../../firebase/create_token.dart';
 class AuthService with WidgetsBindingObserver {
   String? _accessToken;
   final String loginEndpoint = '${AppConfig.baseUrl}/auth/jwt/login?lifetime_seconds=3600';
-  SocketMessageService? _socketMessageService;  // late 키워드 제거하고 nullable로 변경
+  SocketMessageService? _socketMessageService;
 
   static final AuthService _instance = AuthService._internal();
 
@@ -30,7 +30,7 @@ class AuthService with WidgetsBindingObserver {
 
     if (_accessToken != null) {
       // 토큰이 복원된 경우 소켓 연결을 재설정
-      _initializeSocketService();
+      await _initializeSocketService();
     }
   }
 
@@ -49,7 +49,8 @@ class AuthService with WidgetsBindingObserver {
       _saveToken(); // 앱이 백그라운드로 이동할 때 토큰을 저장
       _socketMessageService?.closeWebSocket(); // WebSocket 종료
     } else if (state == AppLifecycleState.resumed) {
-      _restoreToken(); // 앱이 다시 포그라운드로 돌아오면 토큰을 복원
+      _restoreToken(); // 앱이 다시 포그라운드로 돌아오면 토큰을 복원 및 웹소켓 재연결
+      _socketMessageService?.connectWebSocket(); // 웹소켓 재연결
     }
   }
 
