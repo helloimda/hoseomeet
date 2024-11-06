@@ -21,12 +21,12 @@ class _MeetPageState extends State<MeetPage> {
     _fetchPosts(); // 페이지 로드 시 API 호출
   }
 
-  Future<void> _fetchPosts() async {
+  Future<void> _fetchPosts({String? type}) async {
     setState(() {
       isLoading = true;
     });
     try {
-      List<Map<String, dynamic>> fetchedPosts = await _meetSearchService.fetchPosts();
+      List<Map<String, dynamic>> fetchedPosts = await _meetSearchService.fetchPosts(type: type);
       setState(() {
         posts = fetchedPosts;
       });
@@ -149,7 +149,6 @@ class _MeetPageState extends State<MeetPage> {
     );
   }
 
-  // 카테고리명을 한글로 변환하는 함수
   String _getCategoryName(String type) {
     switch (type) {
       case "meet":
@@ -158,7 +157,7 @@ class _MeetPageState extends State<MeetPage> {
         return "배달";
       case "taxi":
       case "carpool":
-        return "택시-카풀";
+        return "택시·카풀";
       default:
         return "기타";
     }
@@ -168,7 +167,11 @@ class _MeetPageState extends State<MeetPage> {
     setState(() {
       selectedCategory = category;
     });
-    _fetchPosts(); // 카테고리 변경 시 게시글을 다시 불러옵니다.
+    String? type;
+    if (category == "모임") type = "meet";
+    else if (category == "배달") type = "delivery";
+    else if (category == "택시·카풀") type = "taxi-carpool";
+    _fetchPosts(type: type);
   }
 
   String formatTimestamp(String timestamp) {
@@ -235,7 +238,6 @@ class _MeetPageState extends State<MeetPage> {
           : SingleChildScrollView(
         child: Column(
           children: [
-            // 카테고리 버튼들
             Container(
               height: 35,
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -253,28 +255,27 @@ class _MeetPageState extends State<MeetPage> {
                     text: "모임",
                     isSelected: selectedCategory == "모임",
                     onPressed: () {
-                      _onCategorySelected("meet");
+                      _onCategorySelected("모임");
                     },
                   ),
                   CategoryButton(
                     text: "배달",
                     isSelected: selectedCategory == "배달",
                     onPressed: () {
-                      _onCategorySelected("delivery");
+                      _onCategorySelected("배달");
                     },
                   ),
                   CategoryButton(
-                    text: "택시-카풀",
-                    isSelected: selectedCategory == "택시-카풀",
+                    text: "택시·카풀",
+                    isSelected: selectedCategory == "택시·카풀",
                     onPressed: () {
-                      _onCategorySelected("taxi-carpool");
+                      _onCategorySelected("택시·카풀");
                     },
                   ),
                 ],
               ),
             ),
             Divider(color: Colors.red, thickness: 1.0),
-            // 게시글 리스트
             ListView.builder(
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
