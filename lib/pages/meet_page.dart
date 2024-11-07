@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/category_button.dart';
 import 'create_post_page.dart';
 import '../api/meet/meet_search_service.dart';
+import '../widgets/meet_post_modal.dart'; // MeetPostModal import
 
 class MeetPage extends StatefulWidget {
   @override
@@ -44,107 +45,7 @@ class _MeetPageState extends State<MeetPage> {
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: GestureDetector(
-            behavior: HitTestBehavior.opaque,
-            onTap: () {},
-            child: Container(
-              padding: EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 24,
-                        backgroundImage: AssetImage('assets/img/profile-placeholder.png'),
-                      ),
-                      SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'zeongh134',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                      Spacer(),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.redAccent,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              _getCategoryName(post['type'] ?? ""),
-                              style: TextStyle(color: Colors.white, fontSize: 12),
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Icon(Icons.more_horiz, color: Colors.grey),
-                        ],
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  Divider(color: Colors.red, thickness: 1.0),
-                  Text(
-                    post['title'],
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 10),
-                  Text(post['content']),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Text(
-                            '${formatTimestamp(post["created_at"])} · 조회 ${post["page_views"]}',
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
-                          ),
-                          SizedBox(width: 8),
-                          Icon(Icons.person_outline, size: 16, color: Colors.grey),
-                          SizedBox(width: 4),
-                          Text(
-                            '${post["join_people"] ?? 0}/${post["max_people"]}명',
-                            style: TextStyle(color: Colors.grey, fontSize: 12),
-                          ),
-                        ],
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text(
-                          '참여하기',
-                          style: TextStyle(color: Colors.white, fontSize: 12),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
+        return MeetPostModal(post: post); // MeetPostModal 위젯 사용
       },
     );
   }
@@ -282,7 +183,7 @@ class _MeetPageState extends State<MeetPage> {
               itemCount: posts.length,
               itemBuilder: (context, index) {
                 final post = posts[index];
-                return GestureDetector(
+                return InkWell(
                   onTap: () {
                     _showPostDetail(post);
                   },
