@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import '../api/meet/chatroom_join_service.dart';
 
 class MeetPostModal extends StatelessWidget {
   final Map<String, dynamic> post;
+  final ChatroomJoinService _chatroomJoinService = ChatroomJoinService();
 
   MeetPostModal({required this.post});
 
@@ -114,8 +116,21 @@ class MeetPostModal extends StatelessWidget {
                     ],
                   ),
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
+                    onPressed: () async {
+                      try {
+                        await _chatroomJoinService.joinChatroom(
+                          postId: post['id'], // `postId`로 수정된 부분
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('채팅방 참여 성공')),
+                        );
+                      } catch (error) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('참여 실패: $error')),
+                        );
+                      } finally {
+                        Navigator.of(context).pop();
+                      }
                     },
                     child: Text(
                       '참여하기',
