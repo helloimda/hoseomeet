@@ -1,4 +1,3 @@
-// lib/kakao/kakao_auto_login_service.dart
 import 'package:kakao_flutter_sdk/kakao_flutter_sdk.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -11,7 +10,7 @@ class KakaoAutoLoginService {
     String? refreshToken = await _storage.read(key: 'refreshToken');
 
     if (accessToken == null || refreshToken == null) {
-      return false;
+      return await _loginWithKakao(); // 토큰이 없으면 카카오 로그인 시도
     }
 
     try {
@@ -27,6 +26,10 @@ class KakaoAutoLoginService {
             null,
           ),
         );
+
+        // 로그인 성공 시 토큰 업데이트
+        await _storeToken(accessToken, refreshToken);
+
         print("자동 로그인 성공: Access Token: $accessToken, Refresh Token: $refreshToken");
         return true;
       } else {
@@ -39,12 +42,38 @@ class KakaoAutoLoginService {
             null,
           ),
         );
+
+        // 재발급된 토큰도 로컬에 저장
         await _storeToken(token.accessToken, token.refreshToken);
+
         print("토큰 재발급 성공: Access Token: ${token.accessToken}, Refresh Token: ${token.refreshToken}");
         return true;
       }
     } catch (e) {
       print("자동 로그인 실패: $e");
+      return await _loginWithKakao(); // 자동 로그인 실패 시 카카오 로그인 시도
+    }
+  }
+
+  // 카카오톡 로그인 메서드
+  Future<bool> _loginWithKakao() async {
+    print("카카오톡 자동로그인 실패로 재로그인 시도");
+    try {
+      OAuthToken token;
+
+      if (await isKakaoTalkInstalled()) {
+        token = await UserApi.instance.loginWithKakaoTalk();
+      } else {
+        token = await UserApi.instance.loginWithKakaoAccount();
+      }
+
+      // 로그인 성공 시 토큰을 저장
+      await _storeToken(token.accessToken, token.refreshToken);
+
+      print("카카오톡 로그인 성공: Access Token: ${token.accessToken}, Refresh Token: ${token.refreshToken}");
+      return true;
+    } catch (e) {
+      print("카카오톡 로그인 실패: $e");
       return false;
     }
   }
