@@ -9,8 +9,12 @@ class KakaoAutoLoginService {
     String? accessToken = await _storage.read(key: 'accessToken');
     String? refreshToken = await _storage.read(key: 'refreshToken');
 
+    print("카톡 자동로그인 시도전 토큰 값: Access Token: $accessToken, Refresh Token: $refreshToken");
+
     if (accessToken == null || refreshToken == null) {
-      return await _loginWithKakao(); // 토큰이 없으면 카카오 로그인 시도
+      // 토큰이 없으면 자동 로그인 시도를 하지 않고 false를 반환
+      print("자동 로그인 실패: 저장된 토큰이 없습니다.");
+      return false;
     }
 
     try {
@@ -20,19 +24,20 @@ class KakaoAutoLoginService {
         await TokenManagerProvider.instance.manager.setToken(
           OAuthToken(
             accessToken,
-            DateTime.now().add(Duration(hours: 1)),
+            DateTime.now().add(Duration(hours: 12)),
             refreshToken,
             DateTime.now().add(Duration(days: 30)),
             null,
           ),
         );
 
-        // 로그인 성공 시 토큰 업데이트
+        // 로그인 성공 시 토큰을 업데이트
         await _storeToken(accessToken, refreshToken);
 
         print("자동 로그인 성공: Access Token: $accessToken, Refresh Token: $refreshToken");
         return true;
       } else {
+        // 토큰이 만료된 경우 새로 발급
         OAuthToken token = await AuthApi.instance.refreshAccessToken(
           oldToken: OAuthToken(
             accessToken,
@@ -43,37 +48,15 @@ class KakaoAutoLoginService {
           ),
         );
 
-        // 재발급된 토큰도 로컬에 저장
+        // 재발급된 토큰을 로컬에 저장
         await _storeToken(token.accessToken, token.refreshToken);
 
         print("토큰 재발급 성공: Access Token: ${token.accessToken}, Refresh Token: ${token.refreshToken}");
         return true;
       }
     } catch (e) {
+      // 자동 로그인 및 토큰 재발급에 실패한 경우 false를 반환
       print("자동 로그인 실패: $e");
-      return await _loginWithKakao(); // 자동 로그인 실패 시 카카오 로그인 시도
-    }
-  }
-
-  // 카카오톡 로그인 메서드
-  Future<bool> _loginWithKakao() async {
-    print("카카오톡 자동로그인 실패로 재로그인 시도");
-    try {
-      OAuthToken token;
-
-      if (await isKakaoTalkInstalled()) {
-        token = await UserApi.instance.loginWithKakaoTalk();
-      } else {
-        token = await UserApi.instance.loginWithKakaoAccount();
-      }
-
-      // 로그인 성공 시 토큰을 저장
-      await _storeToken(token.accessToken, token.refreshToken);
-
-      print("카카오톡 로그인 성공: Access Token: ${token.accessToken}, Refresh Token: ${token.refreshToken}");
-      return true;
-    } catch (e) {
-      print("카카오톡 로그인 실패: $e");
       return false;
     }
   }
