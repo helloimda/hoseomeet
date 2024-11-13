@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'room_list.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,12 +14,35 @@ class _HomePageState extends State<HomePage> {
   String _selectedOption = '전체';
   bool _isDropdownOpened = false;
 
-  bool _isSubCategoryVisible = false; // 자취방을 눌렀을 때 하위 카테고리 표시
-  String _selectedSubCategory = '전체'; // 기본값으로 '전체' 카테고리 선택
+  bool _isSubCategoryVisible = false;
+  String _selectedSubCategory = '전체';
 
-  String _selectedMainCategory = '자취방'; // 기본값으로 자취방 선택
+  String _selectedMainCategory = '자취방';
+  List<dynamic> mainCategories = [];
+  List<dynamic> subCategories = [];
 
-  final List<String> subCategories = ['전체', '정문', '중문', '후문', '기숙사']; // 하위 카테고리 리스트
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    final String response = await rootBundle.loadString('assets/data/main_category.json');
+    final data = json.decode(response);
+    setState(() {
+      mainCategories = data;
+      subCategories = _getSubcategories('자취방');
+    });
+  }
+
+  List<dynamic> _getSubcategories(String mainCategory) {
+    final category = mainCategories.firstWhere(
+          (category) => category['name'] == mainCategory,
+      orElse: () => null,
+    );
+    return category != null ? category['subcategories'] : [];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,14 +95,16 @@ class _HomePageState extends State<HomePage> {
                     scrollDirection: Axis.horizontal,
                     physics: BouncingScrollPhysics(),
                     padding: EdgeInsets.symmetric(horizontal: 12.0),
-                    children: [
-                      _buildCategoryButton('자취방', _selectedMainCategory == '자취방' ? 'assets/img/icon/mainpage/roomtypered.png' : 'assets/img/icon/mainpage/roomtype.png', _toggleSubCategory, _selectedMainCategory == '자취방'),
-                      _buildCategoryButton('음식점', _selectedMainCategory == '음식점' ? 'assets/img/icon/mainpage/foodtypered.png' : 'assets/img/icon/mainpage/foodtype.png', () => _selectMainCategory('음식점'), _selectedMainCategory == '음식점'),
-                      _buildCategoryButton('카페', _selectedMainCategory == '카페' ? 'assets/img/icon/mainpage/cafetypered.png' : 'assets/img/icon/mainpage/cafetype.png', () => _selectMainCategory('카페'), _selectedMainCategory == '카페'),
-                      _buildCategoryButton('술집', _selectedMainCategory == '술집' ? 'assets/img/icon/mainpage/bartypered.png' : 'assets/img/icon/mainpage/bartype.png', () => _selectMainCategory('술집'), _selectedMainCategory == '술집'),
-                      _buildCategoryButton('편의점', _selectedMainCategory == '편의점' ? 'assets/img/icon/mainpage/shoptypered.png' : 'assets/img/icon/mainpage/shoptype.png', () => _selectMainCategory('편의점'), _selectedMainCategory == '편의점'),
-                      _buildCategoryButton('놀거리', _selectedMainCategory == '놀거리' ? 'assets/img/icon/mainpage/playtypered.png' : 'assets/img/icon/mainpage/playtype.png', () => _selectMainCategory('놀거리'), _selectedMainCategory == '놀거리'),
-                    ],
+                    children: mainCategories.map<Widget>((category) {
+                      return _buildCategoryButton(
+                        category['name'],
+                        _selectedMainCategory == category['name']
+                            ? category['icon_selected']
+                            : category['icon_unselected'],
+                            () => _selectMainCategory(category['name']),
+                        _selectedMainCategory == category['name'],
+                      );
+                    }).toList(),
                   ),
                 ),
                 if (_isSubCategoryVisible)
@@ -103,7 +130,9 @@ class _HomePageState extends State<HomePage> {
             minHeight: panelHeightClosed,
             maxHeight: panelHeightOpen,
             borderRadius: BorderRadius.vertical(top: Radius.circular(50)),
-            panel: _selectedMainCategory == '자취방' ? RoomList() : _buildPanelContent(),
+            panel: _selectedMainCategory == '자취방'
+                ? RoomList(categoryName: _selectedMainCategory) // 자취방 카테고리 전달
+                : _buildPanelContent(),
             body: Stack(
               children: [
                 Positioned(
@@ -190,14 +219,8 @@ class _HomePageState extends State<HomePage> {
   void _selectMainCategory(String category) {
     setState(() {
       _selectedMainCategory = category;
-      _isSubCategoryVisible = false;
-    });
-  }
-
-  void _toggleSubCategory() {
-    setState(() {
-      _isSubCategoryVisible = !_isSubCategoryVisible;
-      _selectedMainCategory = '자취방';
+      _isSubCategoryVisible = category == '자취방';
+      subCategories = _getSubcategories(category);
     });
   }
 

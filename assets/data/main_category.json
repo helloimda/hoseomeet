@@ -1,0 +1,38 @@
+[
+  {
+    "name": "자취방",
+    "icon_selected": "assets/img/icon/mainpage/roomtypered.png",
+    "icon_unselected": "assets/img/icon/mainpage/roomtype.png",
+    "subcategories": ["전체", "정문", "중문", "후문", "기숙사"]
+  },
+  {
+    "name": "음식점",
+    "icon_selected": "assets/img/icon/mainpage/foodtypered.png",
+    "icon_unselected": "assets/img/icon/mainpage/foodtype.png",
+    "subcategories": []
+  },
+  {
+    "name": "카페",
+    "icon_selected": "assets/img/icon/mainpage/cafetypered.png",
+    "icon_unselected": "assets/img/icon/mainpage/cafetype.png",
+    "subcategories": []
+  },
+  {
+    "name": "술집",
+    "icon_selected": "assets/img/icon/mainpage/bartypered.png",
+    "icon_unselected": "assets/img/icon/mainpage/bartype.png",
+    "subcategories": []
+  },
+  {
+    "name": "편의점",
+    "icon_selected": "assets/img/icon/mainpage/shoptypered.png",
+    "icon_unselected": "assets/img/icon/mainpage/shoptype.png",
+    "subcategories": []
+  },
+  {
+    "name": "놀거리",
+    "icon_selected": "assets/img/icon/mainpage/playtypered.png",
+    "icon_unselected": "assets/img/icon/mainpage/playtype.png",
+    "subcategories": []
+  }
+]

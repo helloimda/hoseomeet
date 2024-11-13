@@ -1,0 +1,26 @@
+[
+  {
+    "name": "퍼스트빌",
+    "distance": "150m",
+    "reviews": 37,
+    "image": "assets/img/info/room1.png",
+    "description": "신선한 재료로 만든 건강한 맛, 최고의 맛집!",
+    "rating": 4.0
+  },
+  {
+    "name": "궁전빌라",
+    "distance": "152m",
+    "reviews": 37,
+    "image": "assets/img/info/room2.png",
+    "description": "신선한 재료로 만든 건강한 맛, 최고의 맛집!",
+    "rating": 4.0
+  },
+  {
+    "name": "솔원룸",
+    "distance": "151m",
+    "reviews": 37,
+    "image": "assets/img/info/room3.png",
+    "description": "신선한 재료로 만든 건강한 맛, 최고의 맛집!",
+    "rating": 4.0
+  }
+]
