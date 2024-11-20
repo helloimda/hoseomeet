@@ -15,21 +15,26 @@ class _RoomListState extends State<RoomList> {
   final List<String> _selectOptions = ['거리순', '별점순', '리뷰순'];
   String _selectedOption = '거리순';
   bool _isDropdownOpened = false;
-  List<dynamic> rooms = [];
+  List<dynamic> items = [];
   String userName = '';
 
   @override
   void initState() {
     super.initState();
-    _loadRooms();
+    _loadData();
     _loadName();
   }
 
-  Future<void> _loadRooms() async {
-    final String response = await rootBundle.loadString('assets/data/room_list.json');
+  Future<void> _loadData() async {
+    // 카테고리에 따라 다른 JSON 파일 로드
+    String fileName = widget.categoryName == '음식점'
+        ? 'assets/data/food_list.json'
+        : 'assets/data/room_list.json';
+
+    final String response = await rootBundle.loadString(fileName);
     final data = json.decode(response);
     setState(() {
-      rooms = data;
+      items = data;
     });
   }
 
@@ -38,6 +43,19 @@ class _RoomListState extends State<RoomList> {
     final data = json.decode(response);
     setState(() {
       userName = data['name'];
+    });
+  }
+
+  void _sortItems(String criteria) {
+    setState(() {
+      if (criteria == '거리순') {
+        items.sort((a, b) => int.parse(a['distance'].replaceAll('m', '')).compareTo(
+            int.parse(b['distance'].replaceAll('m', ''))));
+      } else if (criteria == '별점순') {
+        items.sort((a, b) => b['rating'].compareTo(a['rating']));
+      } else if (criteria == '리뷰순') {
+        items.sort((a, b) => b['reviews'].compareTo(a['reviews']));
+      }
     });
   }
 
@@ -70,6 +88,7 @@ class _RoomListState extends State<RoomList> {
     if (selected != null) {
       setState(() {
         _selectedOption = selected;
+        _sortItems(selected); // 정렬 실행
       });
     }
   }
@@ -157,9 +176,9 @@ class _RoomListState extends State<RoomList> {
         ),
         Expanded(
           child: ListView.builder(
-            itemCount: rooms.length,
+            itemCount: items.length,
             itemBuilder: (context, index) {
-              final room = rooms[index];
+              final item = items[index];
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
@@ -185,7 +204,7 @@ class _RoomListState extends State<RoomList> {
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8.0),
                             child: Image.asset(
-                              room['image'],
+                              item['image'],
                               width: 100,
                               height: 100,
                               fit: BoxFit.cover,
@@ -197,7 +216,7 @@ class _RoomListState extends State<RoomList> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  room['name'],
+                                  item['name'],
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontFamily: 'Pretendard',
@@ -209,7 +228,7 @@ class _RoomListState extends State<RoomList> {
                                   children: List.generate(5, (starIndex) {
                                     return Icon(
                                       Icons.star,
-                                      color: (room['rating'] >= starIndex + 1) ? Colors.red : Colors.grey,
+                                      color: (item['rating'] >= starIndex + 1) ? Colors.red : Colors.grey,
                                       size: 18,
                                     );
                                   }),
@@ -218,7 +237,7 @@ class _RoomListState extends State<RoomList> {
                                 Row(
                                   children: [
                                     Text(
-                                      room['distance'],
+                                      item['distance'],
                                       style: TextStyle(
                                         fontFamily: 'Pretendard',
                                         fontSize: 14,
@@ -227,7 +246,7 @@ class _RoomListState extends State<RoomList> {
                                     ),
                                     SizedBox(width: 10),
                                     Text(
-                                      '리뷰 ${room['reviews']}',
+                                      '리뷰 ${item['reviews']}',
                                       style: TextStyle(
                                         fontFamily: 'Pretendard',
                                         fontSize: 14,
@@ -251,7 +270,7 @@ class _RoomListState extends State<RoomList> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          room['description'],
+                          item['description'],
                           style: TextStyle(
                             fontFamily: 'Pretendard',
                             fontSize: 10,
